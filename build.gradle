@@ -1,0 +1,36 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+application {
+    mainClassName = 'main.Main'
+}
+
+group 'dev.jaaj.botdiscord'
+version '1.0-SNAPSHOT'
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'utf-8'
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        name 'm2-dv8tion'
+        url 'https://m2.dv8tion.net/releases'
+    }
+}
+
+dependencies {
+    //JDA discord API
+    implementation("net.dv8tion:JDA:4.3.0_339")
+
+    //Lavaplayer
+    implementation 'com.sedmelluq:lavaplayer:1.3.78'
+
+    //Orianna Riot API
+    implementation "com.merakianalytics.orianna:orianna:4.0.0-rc8"
+
+//    compile 'org.slf4j:slf4j-nop:1.7.32'
+}
