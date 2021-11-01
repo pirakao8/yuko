@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import util.music.GuildMusicPlayer;
 
 public class QueueCommand extends AbstractMusicCommand {
-    public QueueCommand(GuildMusicPlayer guildMusicPlayer) {
+    public QueueCommand(final GuildMusicPlayer guildMusicPlayer) {
         super(guildMusicPlayer);
     }
 
@@ -18,7 +18,11 @@ public class QueueCommand extends AbstractMusicCommand {
 
         assert event.getGuild() != null;
 
-        if (!isPlayable(event, bot) && !isMusicPlaying(event)) {
+        if (isPlayable(event, bot)) {
+            return;
+        }
+
+        if (isMusicPlaying(event)) {
             return;
         }
 

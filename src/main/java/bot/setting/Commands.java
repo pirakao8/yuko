@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 
 public class Commands {
+    //TODO clean
     public static @NotNull ArrayList<CommandData> getCommands(final boolean APILeagueEnable) {
         final ArrayList<CommandData> commandList =  new ArrayList<>();
 
@@ -55,11 +56,15 @@ public class Commands {
         CommandData commandInfo     = new CommandData("info", "Get some info about Yuko's life");
         commandList.add(commandInfo);
 
+        CommandData commandRules    = new CommandData("rules", "Add or read rules for this server")
+                .addOption(OptionType.STRING, "rule", "Rule you want to add to this server", false);
+        commandList.add(commandRules);
+
 //****************************************************
 //****************************************************
 //****************************************************
-        CommandData commandPlay     = new CommandData("play", "Play a Youtube audio")
-                .addOption(OptionType.STRING, "title", "Youtube link or title of the Youtube audio", true);
+        CommandData commandPlay     = new CommandData("play", "Play a YouTube audio")
+                .addOption(OptionType.STRING, "title", "YouTube link or title of the YouTube audio", true);
         commandList.add(commandPlay);
 
         CommandData commandVolume   = new CommandData("volume", "Set up the volume")

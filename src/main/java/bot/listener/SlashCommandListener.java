@@ -1,18 +1,14 @@
 package bot.listener;
 
 import bot.Bot;
-
 import command.bot.*;
-
 import command.game.FlipCoinCommand;
 import command.game.Want2PlayCommand;
 import command.league.ChampionCommand;
 import command.league.PatchCommand;
 import command.league.SummonerCommand;
 import command.music.*;
-
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-
 import org.jetbrains.annotations.NotNull;
 import util.music.GuildMusicPlayer;
 
@@ -29,8 +25,7 @@ public class SlashCommandListener extends AbstractListener {
         assert event.getMember() != null;
         assert event.getGuild() != null;
 
-        logger.logDiscord(event.getGuild(), event.getMember(), event.getTextChannel(),
-                "Slash command detected:" + event.getName());
+        logger.logDiscord(event.getGuild(), event.getMember(), event.getTextChannel(), "Slash command detected:" + event.getName());
 
         switch (event.getName()) {
             case "to":
@@ -63,11 +58,15 @@ public class SlashCommandListener extends AbstractListener {
 
             case "topic":
                 new TopicCommand().execute(event);
-                break;
+                return;
 
             case "info":
                 new InfoCommand().execute(event, bot);
-                break;
+                return;
+
+            case "rules":
+                new RulesCommand().execute(event, bot);
+                return;
 
 //****************************************************
 //****************************************************

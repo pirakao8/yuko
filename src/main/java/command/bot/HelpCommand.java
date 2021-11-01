@@ -6,15 +6,17 @@ import command.AbstractSlashCommand;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import org.jetbrains.annotations.NotNull;
 
 public class HelpCommand extends AbstractSlashCommand {
+    //TODO clean with separate commands
     @Override
-    public final void execute(final SlashCommandEvent event, final Bot bot) {
+    public final void execute(final @NotNull SlashCommandEvent event, final Bot bot) {
         super.execute(event, bot);
 
         final StringBuilder helpBuilder = new StringBuilder();
 
-        helpBuilder.append("All commands available : \n \n");
+        helpBuilder.append("All commands available:\n\n");
         for (CommandData commandData : Commands.getCommands(bot.isApiLeagueEnable())) {
             helpBuilder.append("/" + commandData.getName());
 
@@ -25,6 +27,6 @@ public class HelpCommand extends AbstractSlashCommand {
             }
             helpBuilder.append(" : " + commandData.getDescription() + "\n");
         }
-        event.reply(helpBuilder.toString()).queue();
+        event.reply(helpBuilder.toString()).setEphemeral(true).queue();
     }
 }

@@ -4,9 +4,7 @@ import bot.Bot;
 import com.merakianalytics.orianna.Orianna;
 import com.merakianalytics.orianna.datapipeline.riotapi.exceptions.ForbiddenException;
 import com.merakianalytics.orianna.types.core.staticdata.Champion;
-
 import command.AbstractSlashCommand;
-
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import org.jetbrains.annotations.NotNull;
 import util.Logger;
@@ -40,7 +38,6 @@ public class ChampionCommand extends AbstractSlashCommand {
             }
         } catch (ForbiddenException e) {
             logger.log(Logger.Level.ERROR, "Riot API returned FORBIDDEN EXCEPTION, check key permission or api status page");
-
             event.reply("Champion info unavailable due to an error with Riot API").setEphemeral(true).queue();
         }
     }

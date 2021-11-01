@@ -37,9 +37,7 @@ public class Bot implements Runnable {
     private final Date releaseDate;
     private final ArrayList<GuildSettings> guildSettingsList;
 
-    private boolean running;
-
-    public Bot() throws LoginException, InterruptedException {
+    public Bot() {
         logger.log(Logger.Level.SYSTEM, "Initializing Yuko");
 
         apiLeagueEnable   = false;
@@ -69,7 +67,8 @@ public class Bot implements Runnable {
 
         jda = JDABuilder.createDefault(discordToken)
                 .addEventListeners(new ReadyListener(this), new GuildJoinListener(this), new NewMessageListener(this),
-                        new SlashCommandListener(this), new OnButtonClickListener(this), new VoiceLeaveListener(this))
+                        new SlashCommandListener(this), new ButtonClickListener(this), new VoiceLeaveListener(this),
+                        new ChannelCreateListener(this))
                 .enableCache(CacheFlag.MEMBER_OVERRIDES, CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS,
                         CacheFlag.ONLINE_STATUS, CacheFlag.VOICE_STATE)
                 .setMemberCachePolicy(MemberCachePolicy.ALL)
@@ -92,7 +91,7 @@ public class Bot implements Runnable {
 
     @Override
     public final void run() {
-        running = true;
+        boolean running = true;
 
         logger.log(Logger.Level.SYSTEM, "Yuko ready and running");
 
@@ -101,10 +100,6 @@ public class Bot implements Runnable {
         logger.log(Logger.Level.SYSTEM, "Bot stopped");
         jda.shutdown();
         System.exit(0);
-    }
-
-    public final void stop() {
-        running = false;
     }
 
     public final void addSetting(final GuildSettings guildSettings) {

@@ -8,7 +8,7 @@ import bot.setting.EmojiList;
 import util.music.GuildMusicPlayer;
 
 public class SkipCommand extends AbstractMusicCommand {
-    public SkipCommand(GuildMusicPlayer guildMusicPlayer) {
+    public SkipCommand(final GuildMusicPlayer guildMusicPlayer) {
         super(guildMusicPlayer);
     }
 
@@ -18,7 +18,11 @@ public class SkipCommand extends AbstractMusicCommand {
 
         assert event.getGuild() != null;
 
-        if (!isPlayable(event, bot) && !isMusicPlaying(event)) {
+        if (isPlayable(event, bot)) {
+            return;
+        }
+
+        if (isMusicPlaying(event)) {
             return;
         }
 

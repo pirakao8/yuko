@@ -11,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 
 public class Want2PlayCommand extends AbstractSlashCommand {
+    //TODO add msg
     private final String[] tabMsgMention = {
             "Let's play my friend",
             "Wanna play ?",

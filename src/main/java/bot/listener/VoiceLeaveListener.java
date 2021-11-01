@@ -13,7 +13,6 @@ public class VoiceLeaveListener extends AbstractListener {
     @Override
     public void onGuildVoiceLeave(@NotNull final GuildVoiceLeaveEvent event) {
         super.onGuildVoiceLeave(event);
-
         GuildMusicPlayer.getInstance().updateVoiceStatus(event);
     }
 }

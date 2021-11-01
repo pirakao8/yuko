@@ -26,19 +26,21 @@ public class Main {
             }
 
             if (!discordToken.equals("")) {
-                try {
-                    Bot bot = new Bot();
-                    if (!riotToken.equals("")) {
+                Bot bot = new Bot();
+                if (!riotToken.equals("")) {
+                    try {
                         bot.initRiot(riotToken);
-                    } else {
-                        logger.log(Logger.Level.WARNING, "No Riot token specified, League of Legends commands are disabled");
+                    } catch (ForbiddenException e) {
+                        logger.log(Logger.Level.ERROR, "Can't connect to Riot (or Faker is dead), check API key and Riot API status");
                     }
+                } else {
+                    logger.log(Logger.Level.WARNING, "No Riot token specified, League of Legends commands are disabled");
+                }
+                try {
                     bot.initDiscord(discordToken);
                     new Thread(bot, "bot").start();
                 } catch (LoginException | InterruptedException e) {
                     logger.log(Logger.Level.ERROR, "Can't connect to Discord, check API key and JDA status");
-                } catch (ForbiddenException e) {
-                    logger.log(Logger.Level.ERROR, "Can't connect to Riot (or Faker is dead), check API key and Riot API status");
                 }
             } else {
                 logger.log(Logger.Level.ERROR, "No discord token specified");
@@ -49,5 +51,4 @@ public class Main {
             System.exit(0);
         }
     }
-    //"java", "-Dfile.encoding=UTF-8", "-jar"
 }

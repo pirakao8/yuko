@@ -45,12 +45,11 @@ public class SummonerCommand extends AbstractSlashCommand {
                     + getInfoLastGame(summoner)).queue();
         } catch (ForbiddenException e) {
             logger.log(Logger.Level.ERROR, "Riot API returned FORBIDDEN EXCEPTION about SUMMONER, check key permission or api status page");
-
             event.reply("Summoner info unavailable due to an error with Riot API").setEphemeral(true).queue();
         }
     }
 
-    private @NotNull String getInfoLeagueSummoner(@NotNull Summoner summoner) {
+    private @NotNull String getInfoLeagueSummoner(@NotNull final Summoner summoner) {
         final StringBuilder infoLeagueSummoner = new StringBuilder();
         try {
             infoLeagueSummoner.append("Summoner : " + summoner.getName() + ", lvl " + summoner.getLevel() + "\n\n");
@@ -68,13 +67,12 @@ public class SummonerCommand extends AbstractSlashCommand {
             } else infoLeagueSummoner.append("Unranked");
         } catch (ForbiddenException e) {
             logger.log(Logger.Level.ERROR, "Riot API returned FORBIDDEN EXCEPTION about SUMMONER, check key permission or api status page");
-
             infoLeagueSummoner.append("Summoner info unavailable due to an error with Riot API");
         }
         return infoLeagueSummoner.toString();
     }
 
-    private @NotNull String getInfoChampionMasteries(@NotNull Summoner summoner) {
+    private @NotNull String getInfoChampionMasteries(@NotNull final Summoner summoner) {
         final StringBuilder infoChampionMasteries = new StringBuilder();
         try {
             final ChampionMasteries masteries = summoner.getChampionMasteries();
@@ -105,13 +103,12 @@ public class SummonerCommand extends AbstractSlashCommand {
             } else infoChampionMasteries.append("No champ M7");
         } catch (ForbiddenException e) {
             logger.log(Logger.Level.ERROR, "Riot API returned FORBIDDEN EXCEPTION about CHAMPION MASTERIES, check key permission or api status page");
-
             infoChampionMasteries.append("Champion masteries unavailable due to an error with Riot API");
         }
         return infoChampionMasteries.toString();
     }
 
-    private @NotNull String getInfoCurrentGame(@NotNull Summoner summoner) {
+    private @NotNull String getInfoCurrentGame(@NotNull final Summoner summoner) {
         final StringBuilder infoCurrentGame = new StringBuilder();
         try {
             if (summoner.isInGame()) {
@@ -124,13 +121,12 @@ public class SummonerCommand extends AbstractSlashCommand {
             }
         } catch (ForbiddenException e) {
             logger.log(Logger.Level.ERROR, "Riot API returned FORBIDDEN EXCEPTION about CURRENT GAME, check key permission or api status page");
-
             infoCurrentGame.append("Current game info unavailable due to an error with Riot API");
         }
         return infoCurrentGame.toString();
     }
 
-    private @NotNull String getInfoLastGame(@NotNull Summoner summoner) {
+    private @NotNull String getInfoLastGame(@NotNull final Summoner summoner) {
         final StringBuilder infoLastGameBuilder = new StringBuilder();
         try {
             final MatchHistory matchHistory = summoner.matchHistory().get();
@@ -154,7 +150,6 @@ public class SummonerCommand extends AbstractSlashCommand {
             }
         } catch (ForbiddenException e) {
             logger.log(Logger.Level.ERROR, "Riot API returned FORBIDDEN EXCEPTION about GAME HISTORY, check key permission or api status page");
-
             infoLastGameBuilder.append("Last game unavailable due to an error with Riot API");
         }
         return infoLastGameBuilder.toString();

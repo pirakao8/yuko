@@ -1,6 +1,6 @@
 package command.game;
 
-import bot.listener.OnButtonClickListener;
+import bot.listener.ButtonClickListener;
 import bot.setting.EmojiList;
 import bot.setting.GuildSettings;
 import command.AbstractSlashCommand;
@@ -20,8 +20,8 @@ public class FlipCoinCommand extends AbstractSlashCommand {
         embedBuilder.setTitle("Heads or tails?");
 
         event.replyEmbeds(embedBuilder.build()).addActionRow(
-                        Button.primary(OnButtonClickListener.HEADS_BT_LABEL, "Heads").withEmoji(Emoji.fromMarkdown(EmojiList.SWORD.getTag())),
-                        Button.primary(OnButtonClickListener.TAILS_BT_LABEL, "Tails").withEmoji(Emoji.fromMarkdown(EmojiList.SHIELD.getTag())))
+                        Button.primary(ButtonClickListener.HEADS_BT_LABEL, ButtonClickListener.HEADS_BT_LABEL).withEmoji(Emoji.fromMarkdown(EmojiList.SWORD.getTag())),
+                        Button.primary(ButtonClickListener.TAILS_BT_LABEL, ButtonClickListener.TAILS_BT_LABEL).withEmoji(Emoji.fromMarkdown(EmojiList.SHIELD.getTag())))
                 .queue();
 
         embedBuilder.clear();

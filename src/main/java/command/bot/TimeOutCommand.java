@@ -17,7 +17,7 @@ import java.util.TimerTask;
 
 public class TimeOutCommand extends AbstractSlashCommand {
     @Override
-    public final void execute(final SlashCommandEvent event, @NotNull final Bot bot) {
+    public final void execute(@NotNull final SlashCommandEvent event, @NotNull final Bot bot) {
         super.execute(event);
 
         assert event.getGuild()  != null;
@@ -28,31 +28,31 @@ public class TimeOutCommand extends AbstractSlashCommand {
 
         assert kickedMember != null;
 
-        if(!bot.getGuildSetting(event.getGuild()).isJailEnable()) {
+        if (!bot.getGuildSetting(event.getGuild()).isJailEnable()) {
             event.reply("Jail is disabled").setEphemeral(true).queue();
             return;
         }
 
-        if(event.getGuild().getRolesByName(GuildSettings.ROLE_JAIL, true).isEmpty()) {
+        if (event.getGuild().getRolesByName(GuildSettings.ROLE_JAIL, true).isEmpty()) {
             event.reply("Role '" + GuildSettings.ROLE_JAIL +
                     "' must be created. If you want me to create it, type '/settings' to enable/disable TimeOut command").setEphemeral(true).queue();
             return;
         }
 
-        if(kickedMember.getUser().isBot()) {
+        if (kickedMember.getUser().isBot()) {
             event.reply("You can't time out a bot").setEphemeral(true).queue();
             return;
         }
 
-        if(event.getMember().equals(kickedMember)) {
+        if (event.getMember().equals(kickedMember)) {
             event.reply("You can't time out yourself").setEphemeral(true).queue();
             return;
         }
 
-        if(!event.getMember().hasPermission(event.getTextChannel(), Permission.MANAGE_ROLES) &&
+        if (!event.getMember().hasPermission(event.getTextChannel(), Permission.MANAGE_ROLES) &&
                 !kickedMember.hasPermission(event.getTextChannel(), Permission.ADMINISTRATOR)) {
-            event.reply("You don't have permission to time out " +
-                    kickedMember.getEffectiveName()).setEphemeral(true).queue();
+            logger.logDiscordPermission(event.getGuild(), kickedMember, event.getTextChannel(), Permission.ADMINISTRATOR, Permission.MANAGE_ROLES);
+            event.reply("You don't have permission to time out " + kickedMember.getEffectiveName()).setEphemeral(true).queue();
             return;
         }
 
@@ -75,19 +75,19 @@ public class TimeOutCommand extends AbstractSlashCommand {
 
             final List<Role> listRole = kickedMember.getRoles();
 
-            if(listRole.contains(event.getGuild().getRolesByName(GuildSettings.ROLE_JAIL, true).get(0))) {
-                event.reply(kickedMember.getEffectiveName() + " is already kicked temporarily").setEphemeral(true).queue();
+            if (listRole.contains(event.getGuild().getRolesByName(GuildSettings.ROLE_JAIL, true).get(0))) {
+                event.reply(kickedMember.getEffectiveName() + " is already kicked").setEphemeral(true).queue();
                 return;
             }
 
-            if(!listRole.isEmpty()) {
+            if (kickedMember.getVoiceState().inVoiceChannel()) {
+                event.getGuild().kickVoiceMember(kickedMember).queue();
+            }
+
+            if (!listRole.isEmpty()) {
                 for (Role role : listRole) {
                     event.getGuild().removeRoleFromMember(kickedMember, role).queue();
                 }
-            }
-
-            if(kickedMember.getVoiceState().inVoiceChannel()) {
-                event.getGuild().mute(kickedMember, true).queue();
             }
 
             event.getGuild().addRoleToMember(kickedMember, event.getGuild().getRolesByName(GuildSettings.ROLE_JAIL, true).get(0)).queue();
@@ -99,13 +99,13 @@ public class TimeOutCommand extends AbstractSlashCommand {
                 public void run() {
                     event.getGuild().removeRoleFromMember(kickedMember, event.getGuild().getRolesByName(GuildSettings.ROLE_JAIL, true).get(0)).queue();
 
-                    if(!listRole.isEmpty()) {
+                    if (!listRole.isEmpty()) {
                         for (Role role : listRole) {
                             event.getGuild().addRoleToMember(kickedMember, role).queue();
                         }
                     }
 
-                    if(kickedMember.getVoiceState().inVoiceChannel()) {
+                    if (kickedMember.getVoiceState().inVoiceChannel()) {
                         event.getGuild().mute(kickedMember, false).queue();
                     }
                     event.getTextChannel().sendMessage("Welcome back " + kickedMember.getEffectiveName()).queue();
@@ -115,7 +115,6 @@ public class TimeOutCommand extends AbstractSlashCommand {
             timer.schedule(unKickTask, time * 60000);
         } catch (HierarchyException | InsufficientPermissionException e) {
             logger.logDiscordPermission(event.getGuild(), event.getMember(), event.getTextChannel(), e.getPermission());
-
             event.reply("I don't have enough permission to manage roles and kick " + kickedMember.getEffectiveName()).setEphemeral(true).queue();
         }
     }

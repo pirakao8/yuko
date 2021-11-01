@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import util.music.GuildMusicPlayer;
 
 public class PlayCommand extends AbstractMusicCommand {
-    public PlayCommand(GuildMusicPlayer guildMusicPlayer) {
+    public PlayCommand(final GuildMusicPlayer guildMusicPlayer) {
         super(guildMusicPlayer);
     }
 
@@ -18,7 +18,7 @@ public class PlayCommand extends AbstractMusicCommand {
         assert event.getGuild() != null;
         assert event.getMember().getVoiceState() != null;
 
-        if (!isPlayable(event, bot)) {
+        if (isPlayable(event, bot)) {
             return;
         }
 

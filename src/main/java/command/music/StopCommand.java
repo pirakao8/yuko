@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import util.music.GuildMusicPlayer;
 
 public class StopCommand extends AbstractMusicCommand {
-    public StopCommand(GuildMusicPlayer guildMusicPlayer) {
+    public StopCommand(final GuildMusicPlayer guildMusicPlayer) {
         super(guildMusicPlayer);
     }
 
@@ -17,7 +17,11 @@ public class StopCommand extends AbstractMusicCommand {
 
         assert event.getGuild() != null;
 
-        if (!isPlayable(event, bot) && !isMusicPlaying(event)) {
+        if (isPlayable(event, bot)) {
+            return;
+        }
+
+        if (isMusicPlaying(event)) {
             return;
         }
 

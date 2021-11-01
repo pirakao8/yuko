@@ -6,7 +6,10 @@ public enum EmojiList {
     CONTROLLER("\uD83C\uDFAE"),
     PIN("\uD83D\uDCCC"),
     SWORD("⚔️"),
-    SHIELD("\uD83D\uDEE1️"),
+    WELCOME("👋"),
+    SHIELD("\uD83D\uDEE1"),
+    CHECK("✅"),
+    ARROW_DOWN("⬇️"),
 
     MUSIC("\uD83C\uDFB5"),
     PLAY("▶️"),
@@ -14,7 +17,7 @@ public enum EmojiList {
     SKIP("⏭️"),
     STOP("⏹️"),
     SHUFFLE("\uD83D\uDD00"),
-    CLEAR("\uD83C\uDFF3️"),
+    CLEAR("\uD83C\uDFF3"),
     VOLUME("\uD83D\uDD0A");
 
     private final String tag;

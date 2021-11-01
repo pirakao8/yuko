@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import util.music.GuildMusicPlayer;
 
 public class ShuffleCommand extends AbstractMusicCommand {
-    public ShuffleCommand(GuildMusicPlayer guildMusicPlayer) {
+    public ShuffleCommand(final GuildMusicPlayer guildMusicPlayer) {
         super(guildMusicPlayer);
     }
 
@@ -17,7 +17,11 @@ public class ShuffleCommand extends AbstractMusicCommand {
 
         assert event.getGuild() != null;
 
-        if (!isPlayable(event, bot) && !isMusicPlaying(event)) {
+        if (isPlayable(event, bot)) {
+            return;
+        }
+
+        if (isMusicPlaying(event)) {
             return;
         }
 

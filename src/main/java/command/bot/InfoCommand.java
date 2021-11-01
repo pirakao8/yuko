@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class InfoCommand extends AbstractSlashCommand {
     @Override
-    public void execute(@NotNull SlashCommandEvent event, Bot bot) {
+    public void execute(@NotNull final SlashCommandEvent event, final Bot bot) {
         super.execute(event, bot);
 
         event.reply("Yuko's info:\n\n" +

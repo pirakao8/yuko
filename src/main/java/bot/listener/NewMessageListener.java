@@ -12,14 +12,16 @@ public class NewMessageListener extends AbstractListener {
     @Override
     public final void onGuildMessageReceived(@NotNull final GuildMessageReceivedEvent event) {
         super.onGuildMessageReceived(event);
-        if(event.getAuthor().isBot()) return;
 
         assert event.getMember() != null;
 
-        if (event.getMessage().getContentDisplay().startsWith("/") || event.getMessage().getContentDisplay().startsWith("!")) {
-            logger.logDiscord(event.getGuild(), event.getMember(), event.getMessage().getTextChannel(), "Attempt command:" + event.getMessage().getContentDisplay());
+        if (event.getAuthor().isBot()) {
+            return;
+        }
 
-            event.getMessage().reply("That's not how you supposed to use me, try '/help'").queue();
+        if (event.getMessage().getContentDisplay().startsWith("/")) {
+            logger.logDiscord(event.getGuild(), event.getMember(), event.getMessage().getTextChannel(), "Attempt command:" + event.getMessage().getContentDisplay());
+            event.getMessage().reply("Command unknown, try '/help'").queue();
         }
     }
 }

@@ -1,9 +1,7 @@
 package command.bot;
 
 import bot.Bot;
-
 import command.AbstractSlashCommand;
-
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import org.jetbrains.annotations.NotNull;
 

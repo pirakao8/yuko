@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import util.music.GuildMusicPlayer;
 
 public class VolumeCommand extends AbstractMusicCommand {
-    public VolumeCommand(GuildMusicPlayer guildMusicPlayer) {
+    public VolumeCommand(final GuildMusicPlayer guildMusicPlayer) {
         super(guildMusicPlayer);
     }
 
