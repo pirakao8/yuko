@@ -6,15 +6,6 @@ Yuko is a Discord bot based on JDA (Java Discord API). He works with League Of L
 
 Yuko has been developed first for our private guild, but we decided to put our code public to help people like us, who would like to code their own bot in Java.
 
-## How it works
-Yuko is programed in Java 11, but in order to run it on small devices like Raspberry Pi 3+/4, it's compatible with Java 8. We're currently using 3 externals API:
-* JDA (Java Discord API): https://github.com/DV8FromTheWorld/JDA
-* LavaPlayer: https://github.com/sedmelluq/lavaplayer
-* Orianna: https://github.com/meraki-analytics/orianna
-
-LavaPlayer is an audio player library for Discord.  
-Orianna is the Java adaptation of the Riot Games League of Legends API.
-
 ## Features and commands
 Yuko got many features, not only Slash commands. You can find here what Yuko can do.
 
@@ -58,7 +49,7 @@ You can enable/disable `/w2p` command with the commands `/settings`.
 * `/uptime`: Get the time since I'm alive,
 * `/ping`: Get my response time,
 * `/rules <rule>`: Add or read rules of this guild,
-* `/deleterules`: delete all rules of this guild,
+* `/deleterules`: Delete all rules of this guild,
 * `/settings`: Enable/Disable features with interactive buttons,
 * `/to <Member> <Time in minutes>`: Time out someone (5 minutes if no time specified).
 
@@ -69,6 +60,15 @@ With `/settings`, you can enable/disable some features if you are an admin, like
 When you enable `Yuko's jail` to get the `/to` command, a role is created. In this role, you can do nothing, you are kicked temporarily. This role is added to all channels/categories when you enable it. Of course, only members who can manage roles can use this command.
 
 ![Settings](images/settings.png)
+
+## How it works
+Yuko is programed in Java 11, but in order to run it on small devices like Raspberry Pi 3+/4, it's compatible with Java 8. We're currently using 3 externals API:
+* JDA (Java Discord API): https://github.com/DV8FromTheWorld/JDA
+* LavaPlayer: https://github.com/sedmelluq/lavaplayer
+* Orianna: https://github.com/meraki-analytics/orianna
+
+LavaPlayer is an audio player library for Discord.  
+Orianna is the Java adaptation of the Riot Games League of Legends API.
 
 ## Invite Yuko
 To invite Yuko on your guild: https://discord.com/api/oauth2/authorize?client_id=XXX&permissions=322030608&scope=bot%20applications.commands
@@ -89,7 +89,7 @@ https://developer.riotgames.com
 ![Riot API key](images/RiotKey.png)
 
 ### Build
-Build your code with Gradle and Java 11. If you want to build a `.jar`, we advise you to use Gradle Shadow. We're currently using it to build our `.jar`, all the libraries in `gradle.build` file are already set. Just build the jar with `./gradlew shadowJar`  
+Build your code with Gradle and Java 11. If you want to build a `.jar`, we advise you to use Gradle Shadow. We're currently using it to build our `.jar`, all the libraries in the `gradle.build` file are already set. Just build the `.jar` with `./gradlew shadowJar`  
 https://github.com/johnrengelman/shadow
 
 ### Running
@@ -97,7 +97,7 @@ There is 2 arguments specific to Yuko in our code:
 * `--discord-token=DISCORD_API_KEY`: specify your Discord API key (secret token).
 * `--riot-token=RIOT_API_KEY`: specify your Riot Games API key.
 
-To run your .jar:  
+To run your `.jar`:  
 `java -jar path/to/.jar --discord-token=DISCORD_API_KEY --riot-token=RIOT_API_KEY -Dfile.encoding=utf-8 -encoding utf8`  
 
 
