@@ -6,11 +6,13 @@ import bot.setting.GuildSettings;
 import com.merakianalytics.orianna.Orianna;
 import com.merakianalytics.orianna.datapipeline.riotapi.exceptions.ForbiddenException;
 import com.merakianalytics.orianna.types.common.Platform;
+import com.merakianalytics.orianna.types.common.Queue;
 import com.merakianalytics.orianna.types.common.Region;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
@@ -36,6 +38,7 @@ public class Bot implements Runnable {
 
     private final Date releaseDate;
     private final ArrayList<GuildSettings> guildSettingsList;
+    private final ArrayList<CommandData> commandList;
 
     public Bot() {
         logger.log(Logger.Level.SYSTEM, "Initializing Yuko");
@@ -43,6 +46,7 @@ public class Bot implements Runnable {
         apiLeagueEnable   = false;
         releaseDate       = new Date();
         guildSettingsList = new ArrayList<>();
+        commandList       = new ArrayList<>();
     }
 
     public final void initRiot(final String riotToken) throws ForbiddenException {
@@ -53,8 +57,8 @@ public class Bot implements Runnable {
         Orianna.setDefaultPlatform(Platform.EUROPE_WEST);
         Orianna.setDefaultRegion(Region.EUROPE_WEST);
 
-        if(!Orianna.summonerNamed("Hide on bush").get().exists()) {
-            throw new ForbiddenException("API key invalid or Faker is dead");
+        if(!Orianna.challengerLeagueInQueue(Queue.RANKED_SOLO).get().exists()) {
+            throw new ForbiddenException("API key invalid or League got big trouble");
         }
 
         apiLeagueEnable = true;
@@ -64,6 +68,8 @@ public class Bot implements Runnable {
 
     public final void initDiscord(final String discordToken) throws InterruptedException, LoginException {
         logger.log(Logger.Level.SYSTEM, "Initializing JDA Discord API");
+
+        commandList.addAll(new Commands().getAllCommands(apiLeagueEnable));
 
         jda = JDABuilder.createDefault(discordToken)
                 .addEventListeners(new ReadyListener(this), new GuildJoinListener(this), new NewMessageListener(this),
@@ -77,8 +83,8 @@ public class Bot implements Runnable {
                 .setActivity(Activity.watching(tabActivities[(int) (Math.random() * tabActivities.length)]))
                 .build();
 
-        CommandListUpdateAction commands = jda.updateCommands();
-        commands.addCommands(Commands.getCommands(apiLeagueEnable)).queue();
+        CommandListUpdateAction commandListUpdateAction = jda.updateCommands();
+        commandListUpdateAction.addCommands(commandList).queue();
 
         jda.awaitReady();
 
@@ -106,14 +112,6 @@ public class Bot implements Runnable {
         guildSettingsList.add(guildSettings);
     }
 
-    public final Date getReleaseDate() {
-        return releaseDate;
-    }
-
-    public final String getVersion() {
-        return version;
-    }
-
     public final @NotNull GuildSettings getGuildSetting(final Guild guild) {
         for (GuildSettings guildSettings : guildSettingsList) {
             if (guildSettings.getGuild().equals(guild)) {
@@ -123,6 +121,14 @@ public class Bot implements Runnable {
         GuildSettings guildSettings = new GuildSettings(guild);
         addSetting(guildSettings);
         return guildSettings;
+    }
+
+    public final Date getReleaseDate() {
+        return releaseDate;
+    }
+
+    public final String getVersion() {
+        return version;
     }
 
     public final boolean isApiLeagueEnable() {

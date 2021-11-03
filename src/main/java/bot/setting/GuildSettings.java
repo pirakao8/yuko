@@ -7,7 +7,7 @@ import java.awt.*;
 import java.util.ArrayList;
 
 public class GuildSettings {
-    public static final Color  DEFAULT_COLOR   = new Color(87,108,236);
+    public static final Color  DEFAULT_COLOR   = new Color(255, 183, 15, 255);
 
     public static final String ROLE_WELCOMER = "Welcomer";
     public static final String ROLE_JAIL = "Yuko's Jail";
@@ -51,6 +51,10 @@ public class GuildSettings {
             rulesBuilder.append(rule + "\n\n");
         }
         return rulesBuilder.toString();
+    }
+
+    public final void clearRules() {
+        rulesList.clear();
     }
 
     public final boolean isRuleEmpty() {

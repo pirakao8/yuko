@@ -68,6 +68,11 @@ public class SlashCommandListener extends AbstractListener {
                 new RulesCommand().execute(event, bot);
                 return;
 
+            case "deleterules":
+                new DeleteRulesCommand().execute(event, bot);
+                return;
+
+
 //****************************************************
 //****************************************************
 //****************************************************

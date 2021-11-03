@@ -20,8 +20,8 @@ public class FlipCoinCommand extends AbstractSlashCommand {
         embedBuilder.setTitle("Heads or tails?");
 
         event.replyEmbeds(embedBuilder.build()).addActionRow(
-                        Button.primary(ButtonClickListener.HEADS_BT_LABEL, ButtonClickListener.HEADS_BT_LABEL).withEmoji(Emoji.fromMarkdown(EmojiList.SWORD.getTag())),
-                        Button.primary(ButtonClickListener.TAILS_BT_LABEL, ButtonClickListener.TAILS_BT_LABEL).withEmoji(Emoji.fromMarkdown(EmojiList.SHIELD.getTag())))
+                        Button.primary(ButtonClickListener.BT_LABEL_HEADS, ButtonClickListener.BT_LABEL_HEADS).withEmoji(Emoji.fromMarkdown(EmojiList.SWORD.getTag())),
+                        Button.primary(ButtonClickListener.BT_LABEL_TAILS, ButtonClickListener.BT_LABEL_TAILS).withEmoji(Emoji.fromMarkdown(EmojiList.SHIELD.getTag())))
                 .queue();
 
         embedBuilder.clear();

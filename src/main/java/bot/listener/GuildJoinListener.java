@@ -38,11 +38,15 @@ public class GuildJoinListener extends AbstractListener {
     public final void onGuildJoin(@NotNull final GuildJoinEvent event) {
         super.onGuildJoin(event);
 
+        assert event.getGuild().getBotRole() != null;
+
         final TextChannel textChannel;
 
         bot.addSetting(new GuildSettings(event.getGuild()));
 
         logger.logDiscord(event.getGuild(), "Guild joined");
+
+        event.getGuild().getBotRole().getManager().setColor(GuildSettings.DEFAULT_COLOR).queue();
 
         if (event.getGuild().getDefaultChannel() == null) {
             if(event.getGuild().getRulesChannel() == null) {
@@ -59,17 +63,15 @@ public class GuildJoinListener extends AbstractListener {
         }
 
         final ArrayList<Button> buttons = new ArrayList<>();
-        if(bot.isApiLeagueEnable()) {
-            buttons.add(Button.primary(ButtonClickListener.LEAGUE_BT_LABEL, ButtonClickListener.LEAGUE_BT_LABEL).withEmoji(Emoji.fromMarkdown(EmojiList.WITCHER.getTag())));
-        }
-        buttons.add(Button.primary(ButtonClickListener.MUSIC_BT_LABEL, ButtonClickListener.MUSIC_BT_LABEL).withEmoji(Emoji.fromMarkdown(EmojiList.MUSIC.getTag())));
-        buttons.add(Button.primary(ButtonClickListener.JAIL_BT_LABEL, ButtonClickListener.JAIL_BT_LABEL).withEmoji(Emoji.fromMarkdown(EmojiList.JAIL.getTag())));
-        buttons.add(Button.primary(ButtonClickListener.W2P_BT_LABEL, ButtonClickListener.W2P_BT_LABEL).withEmoji(Emoji.fromMarkdown(EmojiList.CONTROLLER.getTag())));
-        buttons.add(Button.primary(ButtonClickListener.PIN_BT_LABEL, ButtonClickListener.PIN_BT_LABEL).withEmoji(Emoji.fromMarkdown(EmojiList.PIN.getTag())));
+            buttons.add(Button.primary(ButtonClickListener.BT_LABEL_LEAGUE, ButtonClickListener.BT_LABEL_LEAGUE)
+                    .withEmoji(Emoji.fromMarkdown(EmojiList.WITCHER.getTag())).withDisabled(!bot.isApiLeagueEnable()));
+        buttons.add(Button.primary(ButtonClickListener.BT_LABEL_MUSIC, ButtonClickListener.BT_LABEL_MUSIC).withEmoji(Emoji.fromMarkdown(EmojiList.MUSIC.getTag())));
+        buttons.add(Button.primary(ButtonClickListener.BT_LABEL_JAIL, ButtonClickListener.BT_LABEL_JAIL).withEmoji(Emoji.fromMarkdown(EmojiList.JAIL.getTag())));
+        buttons.add(Button.primary(ButtonClickListener.BT_LABEL_W2P, ButtonClickListener.BT_LABEL_W2P).withEmoji(Emoji.fromMarkdown(EmojiList.CONTROLLER.getTag())));
+        buttons.add(Button.primary(ButtonClickListener.BT_LABEL_PIN, ButtonClickListener.BT_LABEL_PIN).withEmoji(Emoji.fromMarkdown(EmojiList.PIN.getTag())));
 
         final EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setColor(GuildSettings.DEFAULT_COLOR);
-        //TODO
         embedBuilder.setTitle("Hello everyone!");
         embedBuilder.appendDescription("I'm Yuko the bot and I'm here to help you! How? With multiple features, type '/help' if you want to know them." +
                 "But before anything else, you can enable/disable some of my settings by clicking on the buttons " + EmojiList.ARROW_DOWN.getTag() + ". " +

@@ -9,7 +9,7 @@ public class PingCommand extends AbstractSlashCommand {
     public final void execute(@NotNull final SlashCommandEvent event) {
         super.execute(event);
 
-        event.reply("Pong!").setEphemeral(true)
-                .flatMap(v -> event.getHook().editOriginalFormat("Pong: %d ms", System.currentTimeMillis() - System.currentTimeMillis())).queue();
+        event.reply("Pong!").setEphemeral(true).flatMap(
+                v -> event.getHook().editOriginalFormat("Pong: %d ms", System.currentTimeMillis() - System.currentTimeMillis())).queue();
     }
 }

@@ -8,7 +8,7 @@ import util.Logger;
 import javax.security.auth.login.LoginException;
 
 public class Main {
-    private static final Logger logger = Logger.getLogger().setLogFile("");
+    private static final Logger logger = Logger.getLogger().setLogFile("yuko.log");
 
     public static void main(final String @NotNull [] argv) {
         String discordToken = "";
@@ -31,7 +31,7 @@ public class Main {
                     try {
                         bot.initRiot(riotToken);
                     } catch (ForbiddenException e) {
-                        logger.log(Logger.Level.ERROR, "Can't connect to Riot (or Faker is dead), check API key and Riot API status");
+                        logger.log(Logger.Level.ERROR, "Can't connect to Riot (or League got big trouble), check API key and Riot API status");
                     }
                 } else {
                     logger.log(Logger.Level.WARNING, "No Riot token specified, League of Legends commands are disabled");

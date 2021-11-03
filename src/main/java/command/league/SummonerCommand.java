@@ -1,26 +1,26 @@
 package command.league;
 
 import bot.Bot;
+import bot.setting.EmojiList;
 import com.merakianalytics.orianna.datapipeline.riotapi.exceptions.ForbiddenException;
+import com.merakianalytics.orianna.types.common.GameMode;
+import com.merakianalytics.orianna.types.common.Queue;
 import com.merakianalytics.orianna.types.core.championmastery.ChampionMasteries;
 import com.merakianalytics.orianna.types.core.championmastery.ChampionMastery;
 import com.merakianalytics.orianna.types.core.league.LeagueEntry;
-import com.merakianalytics.orianna.types.core.league.LeaguePositions;
 import com.merakianalytics.orianna.types.core.match.Match;
-import com.merakianalytics.orianna.types.core.match.MatchHistory;
 import com.merakianalytics.orianna.types.core.match.Participant;
 import com.merakianalytics.orianna.types.core.match.ParticipantStats;
 import com.merakianalytics.orianna.types.core.spectator.CurrentMatch;
 import com.merakianalytics.orianna.types.core.summoner.Summoner;
-import command.AbstractSlashCommand;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import org.jetbrains.annotations.NotNull;
 import util.Logger;
 
+import java.text.NumberFormat;
 import java.util.Date;
-import java.util.List;
 
-public class SummonerCommand extends AbstractSlashCommand {
+public class SummonerCommand extends AbstractLeagueCommand {
     @Override
     public final void execute(@NotNull final SlashCommandEvent event, @NotNull final Bot bot) {
         super.execute(event);
@@ -34,124 +34,117 @@ public class SummonerCommand extends AbstractSlashCommand {
 
         try {
             final Summoner summoner = Summoner.named(event.getOptions().get(0).getAsString()).get();
-
             if (!summoner.exists()) {
-                event.reply("Summoner not found").queue();
+                event.reply("Summoner not found").setEphemeral(true).queue();
                 return;
             }
+            embedBuilder.setTitle("" + summoner.getName());
+            embedBuilder.appendDescription("Level: " + summoner.getLevel());
+            embedBuilder.setThumbnail(summoner.getProfileIcon().getImage().getURL());
 
-            event.reply(getInfoLeagueSummoner(summoner) + "\n"
-                    + getInfoChampionMasteries(summoner) + getInfoCurrentGame(summoner) + "\n\n"
-                    + getInfoLastGame(summoner)).queue();
-        } catch (ForbiddenException e) {
-            logger.log(Logger.Level.ERROR, "Riot API returned FORBIDDEN EXCEPTION about SUMMONER, check key permission or api status page");
-            event.reply("Summoner info unavailable due to an error with Riot API").setEphemeral(true).queue();
-        }
-    }
+            embedBuilder.addField("SoloQ", getInfoLeague(summoner.getLeaguePosition(Queue.RANKED_SOLO)), true);
+            embedBuilder.addField("Flex", getInfoLeague(summoner.getLeaguePosition(Queue.RANKED_FLEX)), true);
+            embedBuilder.addBlankField(true);
 
-    private @NotNull String getInfoLeagueSummoner(@NotNull final Summoner summoner) {
-        final StringBuilder infoLeagueSummoner = new StringBuilder();
-        try {
-            infoLeagueSummoner.append("Summoner : " + summoner.getName() + ", lvl " + summoner.getLevel() + "\n\n");
-
-            final LeaguePositions leaguePositions = summoner.getLeaguePositions();
-            if (leaguePositions.exists()) {
-                for (LeagueEntry currentLeague : leaguePositions) {
-                    String queueName = currentLeague.getQueue().name();
-                    if (queueName.equals("RANKED_SOLO")) queueName = "SoloQ ";
-                    else if (queueName.equals("RANKED_FLEX")) queueName = "Flex ";
-
-                    infoLeagueSummoner.append(queueName + " : " + currentLeague.getTier().name().toLowerCase() + " ");
-                    infoLeagueSummoner.append(currentLeague.getDivision() + " " + currentLeague.getLeaguePoints() + " LP\n");
-                }
-            } else infoLeagueSummoner.append("Unranked");
-        } catch (ForbiddenException e) {
-            logger.log(Logger.Level.ERROR, "Riot API returned FORBIDDEN EXCEPTION about SUMMONER, check key permission or api status page");
-            infoLeagueSummoner.append("Summoner info unavailable due to an error with Riot API");
-        }
-        return infoLeagueSummoner.toString();
-    }
-
-    private @NotNull String getInfoChampionMasteries(@NotNull final Summoner summoner) {
-        final StringBuilder infoChampionMasteries = new StringBuilder();
-        try {
-            final ChampionMasteries masteries = summoner.getChampionMasteries();
-            final List<ChampionMastery> m6 = masteries.filter((ChampionMastery mastery) -> {
-                assert mastery != null;
-                return mastery.getLevel() == 6;
-            });
-            if (!m6.isEmpty()) {
-                infoChampionMasteries.append("M6 : ");
-                for (ChampionMastery championMastery : m6) {
-                    infoChampionMasteries.append(championMastery.getChampion().getName() + ", ");
-                }
-                infoChampionMasteries.append("\n");
-            } else infoChampionMasteries.append("No champ M6 \n");
-
-            final List<ChampionMastery> m7 = masteries.filter((ChampionMastery mastery) -> {
-                assert mastery != null;
-                return mastery.getLevel() == 7;
-            });
-            if (!m7.isEmpty()) {
-                infoChampionMasteries.append("M7 : " + m7.get(0).getChampion().getName() + " with ");
-                infoChampionMasteries.append(m7.get(0).getPoints() + " points");
-                m7.remove(0);
-                for (ChampionMastery championMastery : m7) {
-                    infoChampionMasteries.append(", " + championMastery.getChampion().getName());
-                }
-                infoChampionMasteries.append("\n");
-            } else infoChampionMasteries.append("No champ M7");
-        } catch (ForbiddenException e) {
-            logger.log(Logger.Level.ERROR, "Riot API returned FORBIDDEN EXCEPTION about CHAMPION MASTERIES, check key permission or api status page");
-            infoChampionMasteries.append("Champion masteries unavailable due to an error with Riot API");
-        }
-        return infoChampionMasteries.toString();
-    }
-
-    private @NotNull String getInfoCurrentGame(@NotNull final Summoner summoner) {
-        final StringBuilder infoCurrentGame = new StringBuilder();
-        try {
-            if (summoner.isInGame()) {
-                final CurrentMatch currentMatch = summoner.getCurrentMatch();
-                final long gameDuration = (new Date().getTime() - currentMatch.getCreationTime().getMillis()) / (1000 * 60);
-
-                infoCurrentGame.append(summoner.getName() + " currently in game since " + gameDuration + " minutes ");
-                if (currentMatch.getMode().name().equalsIgnoreCase("classic")) infoCurrentGame.append("on the rift");
-                else infoCurrentGame.append("in " + currentMatch.getMode().name().toLowerCase());
+            final ChampionMasteries championMasteries = summoner.getChampionMasteries();
+            embedBuilder.addField(EmojiList.FIRST.getTag(), getInfoMasteries(championMasteries, 0), true);
+            embedBuilder.addField(EmojiList.SECOND.getTag(), getInfoMasteries(championMasteries, 1), true);
+            embedBuilder.addField(EmojiList.THIRD.getTag(), getInfoMasteries(championMasteries, 2), true);
+            try {
+                embedBuilder.setImage(championMasteries.get(0).getChampion().getSkins().get(0).getSplashImageURL());
+            } catch (ForbiddenException e) {
+                logger.log(Logger.Level.ERROR, "Riot API returned FORBIDDEN EXCEPTION about CHAMPION MASTERIES, check key permission or api status page");
             }
-        } catch (ForbiddenException e) {
-            logger.log(Logger.Level.ERROR, "Riot API returned FORBIDDEN EXCEPTION about CURRENT GAME, check key permission or api status page");
-            infoCurrentGame.append("Current game info unavailable due to an error with Riot API");
-        }
-        return infoCurrentGame.toString();
-    }
 
-    private @NotNull String getInfoLastGame(@NotNull final Summoner summoner) {
-        final StringBuilder infoLastGameBuilder = new StringBuilder();
-        try {
-            final MatchHistory matchHistory = summoner.matchHistory().get();
-            if (matchHistory.exists()) {
-                final Match lastGame = matchHistory.get(0);
-                if (lastGame.exists()) {
-                    final List<Participant> participants = lastGame.getParticipants();
+            final StringBuilder infoLastMatchBuilder = new StringBuilder();
+            try {
+                final Match lastMatch = summoner.matchHistory().get().get(0);
+                if (lastMatch.exists()) {
+                    for (Participant participant : lastMatch.getParticipants()) {
+                        if (participant.getSummoner().equals(summoner)) {
+                            final ParticipantStats stats = participant.getStats();
+                            infoLastMatchBuilder.append("**" + participant.getChampion().getName() + "** in "
+                                    + stats.getKills() + "/" + stats.getDeaths() + "/" + stats.getAssists());
 
-                    for (Participant currentParticipant : participants) {
-                        if (currentParticipant.getProfileIcon().equals(summoner.getProfileIcon())) {
-                            final ParticipantStats stats = currentParticipant.getStats();
-                            infoLastGameBuilder.append("Last game with " + currentParticipant.getChampion().getName() +
-                                    " in " + stats.getKills() + "/" + stats.getDeaths() + "/" + stats.getAssists());
-
-                            final String lastGameMode = lastGame.getMode().name();
-                            if (lastGameMode.equals("classic")) infoLastGameBuilder.append(" at " + currentParticipant.getLane().name().toLowerCase() + "\n");
-                            else infoLastGameBuilder.append(" in " + lastGameMode);
+                            if (lastMatch.getMode().equals(GameMode.CLASSIC)) {
+                                infoLastMatchBuilder.append(" at **" + participant.getLane().name().toLowerCase() + "**");
+                            } else {
+                                infoLastMatchBuilder.append(" in " + lastMatch.getMode().name());
+                            }
                         }
                     }
                 }
+            } catch (ForbiddenException e) {
+                logger.log(Logger.Level.ERROR, "Riot API returned FORBIDDEN EXCEPTION about GAME HISTORY, check key permission or api status page");
+                infoLastMatchBuilder.append("Unavailable (Riot API Error)");
             }
+            embedBuilder.addField("Last game", infoLastMatchBuilder.toString(), true);
+
+            final StringBuilder infoCurrentMatchBuilder = new StringBuilder();
+            try {
+                if (summoner.isInGame()) {
+                    final CurrentMatch currentMatch = summoner.getCurrentMatch();
+                    final long gameDuration = (new Date().getTime() - currentMatch.getCreationTime().getMillis()) / (1000 * 60);
+                    infoCurrentMatchBuilder.append(summoner.getName() + " currently in game since **" + gameDuration + "** minutes ");
+                    if (currentMatch.getMode().equals(GameMode.CLASSIC)) {
+                        infoCurrentMatchBuilder.append("on the rift");
+                    }
+                    else {
+                        infoCurrentMatchBuilder.append("in " + currentMatch.getMode().name().toLowerCase());
+                    }
+                } else {
+                    infoCurrentMatchBuilder.append("N/A");
+                }
+            } catch (ForbiddenException e) {
+                logger.log(Logger.Level.ERROR, "Riot API returned FORBIDDEN EXCEPTION about CURRENT GAME, check key permission or api status page");
+                infoCurrentMatchBuilder.append("Unavailable (Riot API Error)");
+            }
+            embedBuilder.addField("Live game", infoCurrentMatchBuilder.toString(), true);
+
+            event.replyEmbeds(embedBuilder.build()).setEphemeral(true).queue();
+            embedBuilder.clear();
+
         } catch (ForbiddenException e) {
-            logger.log(Logger.Level.ERROR, "Riot API returned FORBIDDEN EXCEPTION about GAME HISTORY, check key permission or api status page");
-            infoLastGameBuilder.append("Last game unavailable due to an error with Riot API");
+            logger.log(Logger.Level.ERROR, "Riot API returned FORBIDDEN EXCEPTION about SUMMONER, check key permission or api status page");
+            event.reply("Unavailable (Riot API Error)").setEphemeral(true).queue();
         }
-        return infoLastGameBuilder.toString();
+    }
+
+    private @NotNull String getInfoLeague(final LeagueEntry leagueEntry) {
+        if (leagueEntry == null) {
+            return "**UNRANKED**";
+        }
+
+        final StringBuilder leagueBuilder = new StringBuilder();
+        try {
+            final int wins = leagueEntry.getWins();
+            final int losses = leagueEntry.getLosses();
+            final double winrate = Math.round(((wins * 100.0) / (wins + losses)) * 100.0) / 100.0;
+
+            leagueBuilder.append("**" + leagueEntry.getTier().name() + " " + leagueEntry.getDivision() + "**\n");
+            leagueBuilder.append(leagueEntry.getLeaguePoints() + "LP\n");
+            leagueBuilder.append("Wins: " + wins + "\n");
+            leagueBuilder.append("Losses: " + losses + "\n");
+            leagueBuilder.append("Total: " + (wins + losses) + "\n");
+            leagueBuilder.append("Winrate: **" + winrate + "%**");
+        } catch (ForbiddenException e) {
+            logger.log(Logger.Level.ERROR, "Riot API returned FORBIDDEN EXCEPTION about SUMMONER, check key permission or api status page");
+            leagueBuilder.append("Unavailable (Riot API Error)");
+        }
+        return leagueBuilder.toString();
+    }
+
+    private @NotNull String getInfoMasteries(@NotNull final ChampionMasteries masteries, int position) {
+        final StringBuilder infoChampionMasteries = new StringBuilder();
+        try {
+            final ChampionMastery championMastery = masteries.get(position);
+            infoChampionMasteries.append("**" + championMastery.getChampion().getName() + "**\n");
+            infoChampionMasteries.append("M" + championMastery.getLevel() + "\n");
+            infoChampionMasteries.append("**" + NumberFormat.getInstance().format(championMastery.getPoints()) + "** points");
+        } catch (ForbiddenException e) {
+            logger.log(Logger.Level.ERROR, "Riot API returned FORBIDDEN EXCEPTION about CHAMPION MASTERIES, check key permission or api status page");
+            infoChampionMasteries.append("Unavailable (Riot API Error)");
+        }
+        return infoChampionMasteries.toString();
     }
 }

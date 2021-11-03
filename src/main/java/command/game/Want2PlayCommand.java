@@ -11,10 +11,10 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 
 public class Want2PlayCommand extends AbstractSlashCommand {
-    //TODO add msg
     private final String[] tabMsgMention = {
             "Let's play my friend",
             "Wanna play ?",
+            "We need you on the field",
     };
 
     @Override
@@ -48,7 +48,7 @@ public class Want2PlayCommand extends AbstractSlashCommand {
                 event.reply("There is too much people in this channel, I can't mention them all").setEphemeral(true).queue();
             }
         } else {
-            event.reply("Sorry, nobody available to play with you...").setEphemeral(true).queue();
+            event.reply("Sorry, nobody available to play with you").setEphemeral(true).queue();
         }
     }
 }

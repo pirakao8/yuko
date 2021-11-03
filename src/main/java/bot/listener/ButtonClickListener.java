@@ -17,15 +17,15 @@ import java.awt.*;
 import java.util.List;
 
 public class ButtonClickListener extends AbstractListener {
-    public static final String HEADS_BT_LABEL   = "Heads";
-    public static final String TAILS_BT_LABEL   = "Tails";
-    public static final String MUSIC_BT_LABEL   = "Music";
-    public static final String JAIL_BT_LABEL    = "Yuko's jail";
-    public static final String LEAGUE_BT_LABEL  = "League of Legends";
-    public static final String W2P_BT_LABEL     = "W2P";
-    public static final String PIN_BT_LABEL     = "Pin me";
-    public static final String WELCOME_BT_LABEL = "Welcomer";
-    public static final String AGREE_BT_LABEL   = "Agreed";
+    public static final String BT_LABEL_HEADS   = "Heads";
+    public static final String BT_LABEL_TAILS   = "Tails";
+    public static final String BT_LABEL_MUSIC   = "Music";
+    public static final String BT_LABEL_JAIL    = "Yuko's jail";
+    public static final String BT_LABEL_LEAGUE  = "League of Legends";
+    public static final String BT_LABEL_W2P     = "W2P";
+    public static final String BT_LABEL_PIN     = "Pin me";
+    public static final String BT_LABEL_WELCOME = "Welcomer";
+    public static final String BT_LABEL_AGREE   = "Agreed";
 
     private GuildSettings guildSettings;
 
@@ -46,27 +46,27 @@ public class ButtonClickListener extends AbstractListener {
         logger.logDiscord(event.getGuild(), event.getMember(), event.getTextChannel(), "Button clicked:" + event.getComponent().getLabel());
 
         switch (event.getComponentId()) {
-            case MUSIC_BT_LABEL:
+            case BT_LABEL_MUSIC:
                 musicClicked(event);
                 return;
 
-            case JAIL_BT_LABEL:
+            case BT_LABEL_JAIL:
                 jailClicked(event);
                 return;
 
-            case LEAGUE_BT_LABEL:
+            case BT_LABEL_LEAGUE:
                 leagueClicked(event);
                 return;
 
-            case W2P_BT_LABEL:
+            case BT_LABEL_W2P:
                 w2pClicked(event);
                 return;
 
-            case PIN_BT_LABEL:
+            case BT_LABEL_PIN:
                 pinMeClicked(event);
                 return;
 
-            case HEADS_BT_LABEL:
+            case BT_LABEL_HEADS:
                 if (new FlipCoinCommand().getResult()) {
                     event.reply("Result: Heads, you won GG WP").setEphemeral(true).queue();
                 } else {
@@ -74,7 +74,7 @@ public class ButtonClickListener extends AbstractListener {
                 }
                 return;
 
-            case TAILS_BT_LABEL:
+            case BT_LABEL_TAILS:
                 if (new FlipCoinCommand().getResult()) {
                     event.reply("Result: Tails, you won GG WP").setEphemeral(true).queue();
                 } else {
@@ -82,11 +82,11 @@ public class ButtonClickListener extends AbstractListener {
                 }
                 return;
 
-            case WELCOME_BT_LABEL:
+            case BT_LABEL_WELCOME:
                 welcomerClicked(event);
                 return;
 
-            case AGREE_BT_LABEL:
+            case BT_LABEL_AGREE:
                 agreeClicked(event);
                 return;
 
@@ -288,7 +288,7 @@ public class ButtonClickListener extends AbstractListener {
 
             guild.getTextChannelsByName(GuildSettings.CHANNEL_WELCOMER, true).get(0)
                     .sendMessageEmbeds(embedBuilder.build()).setActionRow(
-                            Button.primary(AGREE_BT_LABEL, AGREE_BT_LABEL).withEmoji(Emoji.fromMarkdown(EmojiList.CHECK.getTag())))
+                            Button.primary(BT_LABEL_AGREE,BT_LABEL_AGREE).withEmoji(Emoji.fromMarkdown(EmojiList.CHECK.getTag())))
                     .queue();
             embedBuilder.clear();
 

@@ -7,62 +7,26 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 
 public class Commands {
-    //TODO clean
-    public static @NotNull ArrayList<CommandData> getCommands(final boolean APILeagueEnable) {
+    public final @NotNull ArrayList<CommandData> getLeagueCommands() {
         final ArrayList<CommandData> commandList =  new ArrayList<>();
 
-        if(APILeagueEnable) {
-            CommandData commandSummoner = new CommandData("summoner", "Get some info about a summoner")
-                    .addOption(OptionType.STRING, "summoner", "Summoner's name", true);
-            commandList.add(commandSummoner);
+        CommandData commandSummoner = new CommandData("summoner", "Get some info about a summoner")
+                .addOption(OptionType.STRING, "summoner", "Summoner's name", true);
+        commandList.add(commandSummoner);
 
-            CommandData commandPatch = new CommandData("patch", "Get the last patch note");
-            commandList.add(commandPatch);
+        CommandData commandPatch = new CommandData("patch", "Get the last patch note");
+        commandList.add(commandPatch);
 
-            CommandData commandChamp = new CommandData("champ", "Get tips on a league champion")
-                    .addOption(OptionType.STRING, "champion", "Champion's name", true);
-            commandList.add(commandChamp);
-        }
+        CommandData commandChamp = new CommandData("champ", "Get tips on a league champion")
+                .addOption(OptionType.STRING, "champion", "Champion's name", true);
+        commandList.add(commandChamp);
 
-//****************************************************
-//****************************************************
-//****************************************************
-        CommandData commandTo       = new CommandData("to", "Time out someone")
-                .addOption(OptionType.USER, "member", "Member you want to kick temporarily", true)
-                .addOption(OptionType.INTEGER, "time", "Time in minutes", false);
-        commandList.add(commandTo);
+        return commandList;
+    }
 
-        CommandData commandW2P      = new CommandData("w2p", "I ask to everybody connected if they want to play with you");
-        commandList.add(commandW2P);
+    public final @NotNull ArrayList<CommandData> getMusicCommands() {
+        final ArrayList<CommandData> commandList =  new ArrayList<>();
 
-        CommandData commandPing     = new CommandData("ping", "Check my response time");
-        commandList.add(commandPing);
-
-        CommandData commandFlipCoin = new CommandData("flipacoin", "Flip a coin. Basic. Simple");
-        commandList.add(commandFlipCoin);
-
-        CommandData commandSettings = new CommandData("settings", "Enable/Disable settings");
-        commandList.add(commandSettings);
-
-        CommandData commandHelp     = new CommandData("help", "Check all the commands available");
-        commandList.add(commandHelp);
-
-        CommandData commandTopic    = new CommandData("topic", "Get the topic for the current channel");
-        commandList.add(commandTopic);
-
-        CommandData commandUptime   = new CommandData("uptime", "Get the time since I'm up");
-        commandList.add(commandUptime);
-
-        CommandData commandInfo     = new CommandData("info", "Get some info about Yuko's life");
-        commandList.add(commandInfo);
-
-        CommandData commandRules    = new CommandData("rules", "Add or read rules for this server")
-                .addOption(OptionType.STRING, "rule", "Rule you want to add to this server", false);
-        commandList.add(commandRules);
-
-//****************************************************
-//****************************************************
-//****************************************************
         CommandData commandPlay     = new CommandData("play", "Play a YouTube audio")
                 .addOption(OptionType.STRING, "title", "YouTube link or title of the YouTube audio", true);
         commandList.add(commandPlay);
@@ -91,6 +55,60 @@ public class Commands {
 
         CommandData commandShuffle  = new CommandData("shuffle", "Shuffle the current queue");
         commandList.add(commandShuffle);
+        return commandList;
+    }
+
+    public final @NotNull ArrayList<CommandData> getGlobalCommands() {
+        final ArrayList<CommandData> commandList =  new ArrayList<>();
+
+        CommandData commandTo          = new CommandData("to", "Time out someone")
+                .addOption(OptionType.USER, "member", "Member you want to kick temporarily", true)
+                .addOption(OptionType.INTEGER, "time", "Time in minutes", false);
+        commandList.add(commandTo);
+
+        CommandData commandW2P         = new CommandData("w2p", "I ask to everybody connected if they want to play with you");
+        commandList.add(commandW2P);
+
+        CommandData commandPing        = new CommandData("ping", "Check my response time");
+        commandList.add(commandPing);
+
+        CommandData commandFlipCoin    = new CommandData("flipacoin", "Flip a coin. Basic. Simple");
+        commandList.add(commandFlipCoin);
+
+        CommandData commandSettings    = new CommandData("settings", "Enable/Disable settings");
+        commandList.add(commandSettings);
+
+        CommandData commandHelp        = new CommandData("help", "Check all the commands available");
+        commandList.add(commandHelp);
+
+        CommandData commandTopic       = new CommandData("topic", "Get the topic for the current channel");
+        commandList.add(commandTopic);
+
+        CommandData commandUptime      = new CommandData("uptime", "Get the time since I'm up");
+        commandList.add(commandUptime);
+
+        CommandData commandInfo        = new CommandData("info", "Get some info about Yuko's life");
+        commandList.add(commandInfo);
+
+        CommandData commandRules       = new CommandData("rules", "Add or read rules for this server")
+                .addOption(OptionType.STRING, "rule", "Rule you want to add to this server", false);
+        commandList.add(commandRules);
+
+        CommandData commandDeleteRules = new CommandData("deleterules", "Delete all rules of this guild");
+        commandList.add(commandDeleteRules);
+
+        return commandList;
+    }
+
+    public final @NotNull ArrayList<CommandData> getAllCommands(final boolean APILeagueEnable) {
+        final ArrayList<CommandData> commandList =  new ArrayList<>();
+
+        commandList.addAll(getGlobalCommands());
+        commandList.addAll(getMusicCommands());
+
+        if(APILeagueEnable) {
+            commandList.addAll(getLeagueCommands());
+        }
 
         return commandList;
     }

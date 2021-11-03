@@ -60,7 +60,7 @@ public class Logger {
     }
 
     public final void log(@NotNull final Level level, final String content) {
-        final SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy-HH:mm:ss");
+        final SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy-HH:mm:ss");
         final Date date = new Date();
 
         final String logString = formatter.format(date) + "-" + level.name() + "|" + content;

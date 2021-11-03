@@ -10,6 +10,18 @@ public enum EmojiList {
     SHIELD("\uD83D\uDEE1"),
     CHECK("✅"),
     ARROW_DOWN("⬇️"),
+    FIRST("\uD83E\uDD47"),
+    SECOND("\uD83E\uDD48"),
+    THIRD("\uD83E\uDD49"),
+
+    HP("\uD83D\uDC9A"),
+    ARMOR("\uD83D\uDD36"),
+    RM("\uD83D\uDD35"),
+    AD("\uD83E\uDE93"),
+    MS("\uD83C\uDFC3"),
+    ATTACK_RANGE("\uD83C\uDFF9"),
+    MANA("\uD83D\uDCA7"),
+    AS("⚡"),
 
     MUSIC("\uD83C\uDFB5"),
     PLAY("▶️"),

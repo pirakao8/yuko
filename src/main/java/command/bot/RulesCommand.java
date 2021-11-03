@@ -22,7 +22,7 @@ public class RulesCommand extends AbstractSlashCommand {
             if (!guildSettings.isRuleEmpty()) {
                 event.reply(guildSettings.getRules()).setEphemeral(true).queue();
             } else {
-                event.reply("No rules for this server").setEphemeral(true).queue();
+                event.reply("No rules for this guild").setEphemeral(true).queue();
             }
         }
     }
