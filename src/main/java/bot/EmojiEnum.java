@@ -1,10 +1,9 @@
-package bot.setting;
+package bot;
 
-public enum EmojiList {
+public enum EmojiEnum {
     JAIL("\uD83E\uDDD1\u200D⚖️"),
     WITCHER("\uD83E\uDDD9\u200D♂️"),
     CONTROLLER("\uD83C\uDFAE"),
-    PIN("\uD83D\uDCCC"),
     SWORD("⚔️"),
     WELCOME("👋"),
     SHIELD("\uD83D\uDEE1"),
@@ -26,6 +25,7 @@ public enum EmojiList {
     MUSIC("\uD83C\uDFB5"),
     PLAY("▶️"),
     PAUSE("⏸️"),
+    PLAY_PAUSE("⏯️"),
     SKIP("⏭️"),
     STOP("⏹️"),
     SHUFFLE("\uD83D\uDD00"),
@@ -34,7 +34,7 @@ public enum EmojiList {
 
     private final String tag;
 
-    EmojiList(String tag) {
+    EmojiEnum(String tag) {
         this.tag = tag;
     }
 

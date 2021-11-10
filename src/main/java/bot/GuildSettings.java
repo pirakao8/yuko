@@ -1,4 +1,4 @@
-package bot.setting;
+package bot;
 
 import net.dv8tion.jda.api.entities.Guild;
 import org.jetbrains.annotations.NotNull;

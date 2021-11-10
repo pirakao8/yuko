@@ -1,31 +1,37 @@
 package command.music;
 
 import bot.Bot;
-import bot.setting.EmojiList;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import command.CommandEnum;
+import net.dv8tion.jda.api.interactions.Interaction;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.jetbrains.annotations.NotNull;
-import util.music.GuildMusicPlayer;
+import bot.EmojiEnum;
+
+import java.util.List;
 
 public class ShuffleCommand extends AbstractMusicCommand {
-    public ShuffleCommand(final GuildMusicPlayer guildMusicPlayer) {
-        super(guildMusicPlayer);
+    public ShuffleCommand() {
+        super(CommandEnum.SHUFFLE);
     }
 
     @Override
-    public void execute(@NotNull final SlashCommandEvent event, final Bot bot) {
-        super.execute(event, bot);
+    public void execute(@NotNull final Interaction interaction, final @NotNull Bot bot, final List<OptionMapping> options) {
+        super.execute(interaction, bot, options);
 
-        assert event.getGuild() != null;
-
-        if (isPlayable(event, bot)) {
+        if (!isPlayable(interaction, bot)) {
             return;
         }
 
-        if (isMusicPlaying(event)) {
+        if (!isMusicPlaying(interaction)) {
             return;
         }
 
-        guildMusicPlayer.shuffleTracks(event.getGuild());
-        event.reply(EmojiList.SHUFFLE.getTag() + " Queue shuffled").queue();
+        if (guildMusicPlayer.getTracks(interaction.getGuild()).isEmpty()) {
+            interaction.reply("No tracks in queue").setEphemeral(true).queue();
+            return;
+        }
+
+        guildMusicPlayer.shuffleTracks(interaction.getGuild());
+        interaction.reply(EmojiEnum.SHUFFLE.getTag() + " Queue shuffled").queue();
     }
 }

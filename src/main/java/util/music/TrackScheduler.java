@@ -1,6 +1,6 @@
 package util.music;
 
-import bot.setting.EmojiList;
+import bot.EmojiEnum;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
@@ -38,8 +38,8 @@ public class TrackScheduler extends AudioEventAdapter {
     @Override
     public final void onTrackStart(final AudioPlayer player, final AudioTrack track) {
         super.onTrackStart(player, track);
-        if(textChannel != null) {
-            textChannel.sendMessage(EmojiList.PLAY.getTag() + " Music playing: " + track.getInfo().title).queue();
+        if (textChannel != null) {
+            textChannel.sendMessage(EmojiEnum.PLAY.getTag() + " Music playing: " + track.getInfo().title).queue();
         }
     }
 
@@ -50,8 +50,8 @@ public class TrackScheduler extends AudioEventAdapter {
     }
 
     public final void nextTrack() {
-        if(queue.isEmpty()) {
-            if(audioManager.isConnected()) {
+        if (queue.isEmpty()) {
+            if (audioManager.isConnected()) {
                 audioManager.closeAudioConnection();
             }
             return;

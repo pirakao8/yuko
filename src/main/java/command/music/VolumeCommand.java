@@ -1,30 +1,41 @@
 package command.music;
 
 import bot.Bot;
-import bot.setting.EmojiList;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import command.CommandEnum;
+import net.dv8tion.jda.api.interactions.Interaction;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.jetbrains.annotations.NotNull;
-import util.music.GuildMusicPlayer;
+import bot.EmojiEnum;
+
+import java.util.List;
 
 public class VolumeCommand extends AbstractMusicCommand {
-    public VolumeCommand(final GuildMusicPlayer guildMusicPlayer) {
-        super(guildMusicPlayer);
+    public VolumeCommand() {
+        super(CommandEnum.VOLUME,
+                new OptionData(OptionType.INTEGER, "volume", "Volume between 0 and 100", true)
+                );
     }
 
     @Override
-    public void execute(@NotNull final SlashCommandEvent event, final Bot bot) {
-        super.execute(event, bot);
+    public void execute(@NotNull final Interaction interaction, final @NotNull Bot bot, final @NotNull List<OptionMapping> options) {
+        super.execute(interaction, bot, options);
 
-        assert event.getGuild() != null;
+        assert !options.isEmpty();
 
-        final int volume = (int) event.getOptions().get(0).getAsLong();
-
-        if (volume < 0 || volume > 100) {
-            event.reply("Volume must be a value between 0 and 100").setEphemeral(true).queue();
+        if (!isPlayable(interaction, bot)) {
             return;
         }
 
-        guildMusicPlayer.setVolume(event.getGuild(), volume);
-        event.reply(EmojiList.VOLUME.getTag() + " Volume is now at " + guildMusicPlayer.getVolume(event.getGuild())).queue();
+        final int volume = (int) options.get(0).getAsLong();
+
+        if (volume < 0 || volume > 100) {
+            interaction.reply("Volume must be a value between 0 and 100").setEphemeral(true).queue();
+            return;
+        }
+
+        guildMusicPlayer.setVolume(interaction.getGuild(), volume);
+        interaction.reply(EmojiEnum.VOLUME.getTag() + " Volume is now at " + guildMusicPlayer.getVolume(interaction.getGuild())).queue();
     }
 }

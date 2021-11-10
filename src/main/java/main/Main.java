@@ -8,7 +8,7 @@ import util.Logger;
 import javax.security.auth.login.LoginException;
 
 public class Main {
-    private static final Logger logger = Logger.getLogger().setLogFile("yuko.log");
+    private static final Logger logger = Logger.getLogger().setLogFile("/yuko.log");
 
     public static void main(final String @NotNull [] argv) {
         String discordToken = "";
@@ -16,7 +16,7 @@ public class Main {
 
         logger.log("Main thread started");
 
-        if(argv.length != 0) {
+        if (argv.length != 0) {
             for (String arg : argv) {
                 if (arg.startsWith("--discord-token=") || arg.startsWith("--discord-token:")) {
                     discordToken = arg.substring("--discord-token=".length());
@@ -37,6 +37,7 @@ public class Main {
                     logger.log(Logger.Level.WARNING, "No Riot token specified, League of Legends commands are disabled");
                 }
                 try {
+                    bot.initCommands();
                     bot.initDiscord(discordToken);
                     new Thread(bot, "bot").start();
                 } catch (LoginException | InterruptedException e) {

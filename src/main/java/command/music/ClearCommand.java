@@ -1,35 +1,37 @@
 package command.music;
 
 import bot.Bot;
-import bot.setting.EmojiList;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import command.CommandEnum;
+import net.dv8tion.jda.api.interactions.Interaction;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.jetbrains.annotations.NotNull;
-import util.music.GuildMusicPlayer;
+import bot.EmojiEnum;
+
+import java.util.List;
 
 public class ClearCommand extends AbstractMusicCommand {
-    public ClearCommand(final GuildMusicPlayer guildMusicPlayer) {
-        super(guildMusicPlayer);
+    public ClearCommand() {
+        super(CommandEnum.CLEAR);
     }
 
     @Override
-    public void execute(@NotNull final SlashCommandEvent event, final Bot bot) {
-        super.execute(event, bot);
+    public void execute(@NotNull final Interaction interaction, final @NotNull Bot bot, final List<OptionMapping> options) {
+        super.execute(interaction, bot, options);
 
-        assert event.getGuild() != null;
-
-        if (isPlayable(event, bot)) {
+        if (!isPlayable(interaction, bot)) {
             return;
         }
 
-        if (isMusicPlaying(event)) {
+        if (!isMusicPlaying(interaction)) {
             return;
         }
 
-        if(!guildMusicPlayer.getTracks(event.getGuild()).isEmpty()) {
-            guildMusicPlayer.clearTracks(event.getGuild());
-            event.reply(EmojiList.CLEAR.getTag() + " Queue cleared").queue();
-        } else {
-            event.reply("No tracks in queue").setEphemeral(true).queue();
+        if (guildMusicPlayer.getTracks(interaction.getGuild()).isEmpty()) {
+            interaction.reply("No tracks in queue").setEphemeral(true).queue();
+            return;
         }
+
+        guildMusicPlayer.clearTracks(interaction.getGuild());
+        interaction.reply(EmojiEnum.CLEAR.getTag() + " Queue cleared").queue();
     }
 }

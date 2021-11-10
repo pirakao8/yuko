@@ -1,36 +1,50 @@
 package command.music;
 
 import bot.Bot;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import command.CommandEnum;
+import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
+import net.dv8tion.jda.api.interactions.Interaction;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.jetbrains.annotations.NotNull;
-import util.music.GuildMusicPlayer;
+
+import java.util.List;
 
 public class PlayCommand extends AbstractMusicCommand {
-    public PlayCommand(final GuildMusicPlayer guildMusicPlayer) {
-        super(guildMusicPlayer);
+    public PlayCommand() {
+        super(CommandEnum.PLAY,
+                new OptionData(OptionType.STRING, "title", "YouTube link or title of the YouTube audio", true)
+        );
     }
 
     @Override
-    public final void execute(@NotNull final SlashCommandEvent event, final Bot bot) {
-        super.execute(event, bot);
+    public final void execute(@NotNull final Interaction interaction, final @NotNull Bot bot, final @NotNull List<OptionMapping> options) {
+        super.execute(interaction, bot, options);
 
-        assert event.getMember() != null;
-        assert event.getGuild() != null;
-        assert event.getMember().getVoiceState() != null;
+        assert interaction.getMember() != null;
+        assert interaction.getGuild()  != null;
+        assert interaction.getMember().getVoiceState() != null;
+        assert !options.isEmpty();
 
-        if (isPlayable(event, bot)) {
+        if (!isPlayable(interaction, bot)) {
             return;
         }
 
-        String source = event.getOptions().get(0).getAsString();
-        if(!source.startsWith("http")) {
+        String source = options.get(0).getAsString();
+        if (!source.startsWith("http")) {
             source = "ytsearch: " + source;
         }
 
-        if (!event.getGuild().getAudioManager().isConnected()) {
-            event.getGuild().getAudioManager().openAudioConnection(event.getMember().getVoiceState().getChannel());
-        }
+        try {
+            if (!interaction.getGuild().getAudioManager().isConnected()) {
+                interaction.getGuild().getAudioManager().openAudioConnection(interaction.getMember().getVoiceState().getChannel());
+            }
 
-        guildMusicPlayer.loadAndPlay(event, source);
+            guildMusicPlayer.loadAndPlay(interaction, source);
+        } catch (InsufficientPermissionException e) {
+            logger.logDiscordBotPermission(interaction.getGuild(), e);
+            interaction.reply("I don't have permission to connect to your voice channel and speak").setEphemeral(true).queue();
+        }
     }
 }

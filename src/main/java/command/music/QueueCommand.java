@@ -1,41 +1,49 @@
 package command.music;
 
 import bot.Bot;
-import bot.setting.EmojiList;
+import bot.GuildSettings;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import command.CommandEnum;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.interactions.Interaction;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.jetbrains.annotations.NotNull;
-import util.music.GuildMusicPlayer;
+import bot.EmojiEnum;
+
+import java.util.List;
 
 public class QueueCommand extends AbstractMusicCommand {
-    public QueueCommand(final GuildMusicPlayer guildMusicPlayer) {
-        super(guildMusicPlayer);
+    public QueueCommand() {
+        super(CommandEnum.QUEUE);
     }
 
     @Override
-    public void execute(@NotNull final SlashCommandEvent event, final Bot bot) {
-        super.execute(event, bot);
+    public void execute(@NotNull final Interaction interaction, final @NotNull Bot bot, final List<OptionMapping> options) {
+        super.execute(interaction, bot, options);
 
-        assert event.getGuild() != null;
-
-        if (isPlayable(event, bot)) {
+        if (!isPlayable(interaction, bot)) {
             return;
         }
 
-        if (isMusicPlaying(event)) {
+        if (!isMusicPlaying(interaction)) {
             return;
         }
 
-        if (!guildMusicPlayer.getTracks(event.getGuild()).isEmpty()) {
-            final StringBuilder queueBuilder = new StringBuilder();
-            queueBuilder.append(EmojiList.MUSIC.getTag() + " " + guildMusicPlayer.getTracks(event.getGuild()).size() + " tracks in queue :");
-
-            for (AudioTrack audioTrack :  guildMusicPlayer.getTracks(event.getGuild())) {
-                queueBuilder.append("\n- '" + audioTrack.getInfo().title + "'");
-            }
-            event.reply(queueBuilder.toString()).queue();
-        } else {
-            event.reply("Queue empty").setEphemeral(true).queue();
+        if (guildMusicPlayer.getTracks(interaction.getGuild()).isEmpty()) {
+            interaction.reply("Queue empty").setEphemeral(true).queue();
+            return;
         }
+
+        final EmbedBuilder embedBuilder = new EmbedBuilder();
+        embedBuilder.setColor(GuildSettings.DEFAULT_COLOR);
+        embedBuilder.setTitle("Current queue " + EmojiEnum.MUSIC.getTag());
+        embedBuilder.setDescription(guildMusicPlayer.getTracks(interaction.getGuild()).size() + " tracks in queue");
+
+        for (AudioTrack audioTrack :  guildMusicPlayer.getTracks(interaction.getGuild())) {
+            embedBuilder.addField("- '" + audioTrack.getInfo().title + "'", null, false);
+        }
+
+        interaction.replyEmbeds(embedBuilder.build()).queue();
+        embedBuilder.clear();
     }
 }

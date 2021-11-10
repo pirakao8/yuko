@@ -9,7 +9,6 @@ application {
 }
 
 sourceCompatibility = 1.8
-group 'dev.jaaj.botdiscord'
 version '1.0-SNAPSHOT'
 
 tasks.withType(JavaCompile) {

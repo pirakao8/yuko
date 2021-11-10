@@ -1,31 +1,32 @@
 package command.music;
 
 import bot.Bot;
-import bot.setting.EmojiList;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import command.CommandEnum;
+import net.dv8tion.jda.api.interactions.Interaction;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.jetbrains.annotations.NotNull;
-import util.music.GuildMusicPlayer;
+import bot.EmojiEnum;
+
+import java.util.List;
 
 public class StopCommand extends AbstractMusicCommand {
-    public StopCommand(final GuildMusicPlayer guildMusicPlayer) {
-        super(guildMusicPlayer);
+    public StopCommand() {
+        super(CommandEnum.STOP);
     }
 
     @Override
-    public final void execute(@NotNull final SlashCommandEvent event, final Bot bot) {
-        super.execute(event, bot);
+    public final void execute(@NotNull final Interaction interaction, final @NotNull Bot bot, final List<OptionMapping> options) {
+        super.execute(interaction, bot, options);
 
-        assert event.getGuild() != null;
-
-        if (isPlayable(event, bot)) {
+        if (!isPlayable(interaction, bot)) {
             return;
         }
 
-        if (isMusicPlaying(event)) {
+        if (!isMusicPlaying(interaction)) {
             return;
         }
 
-        guildMusicPlayer.stopTracks(event.getGuild());
-        event.reply(EmojiList.STOP.getTag() + " Music stopped").queue();
+        guildMusicPlayer.stopTracks(interaction.getGuild());
+        interaction.reply(EmojiEnum.STOP.getTag() + " Music stopped").queue();
     }
 }

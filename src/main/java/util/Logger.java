@@ -1,9 +1,14 @@
 package util;
 
+import button.ButtonEnum;
+import command.AbstractSlashCommand;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.exceptions.HierarchyException;
+import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
+import net.dv8tion.jda.api.interactions.Interaction;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -82,10 +87,17 @@ public class Logger {
         log(Level.SYSTEM, content);
     }
 
-    public final void logDiscord(@NotNull final Guild guild, @NotNull final Member member, @NotNull final TextChannel textChannel, final String content) {
+    private void logDiscord(@NotNull final Guild guild, @NotNull final Member member, @NotNull final TextChannel textChannel, final String content) {
         final String logDiscordString = "Guild:'" + guild.getName() + "'(id:" + guild.getId() + ")|" +
                 "Member:'" + member.getEffectiveName() + "'(id:" + member.getId() + ")|" +
                 "Channel:'" + textChannel.getName() + "'(id:" + textChannel.getId() + ")|" +
+                content;
+        log(Level.DISCORD, logDiscordString);
+    }
+
+    private void logDiscord(@NotNull final Guild guild, @NotNull final Member member, final String content) {
+        final String logDiscordString = "Guild:'" + guild.getName() + "'(id:" + guild.getId() + ")|" +
+                "Member:'" + member.getEffectiveName() + "'(id:" + member.getId() + ")|" +
                 content;
         log(Level.DISCORD, logDiscordString);
     }
@@ -95,12 +107,37 @@ public class Logger {
         log(Level.DISCORD, logDiscordString);
     }
 
-    public final void logDiscordPermission(@NotNull final Guild guild, @NotNull final Member member, @NotNull final TextChannel textChannel, @NotNull final Permission @NotNull ... permissions) {
+    public final void logDiscordCommandSuccess(@NotNull final Interaction interaction, final @NotNull AbstractSlashCommand slashCommand) {
+        assert interaction.getGuild()  != null;
+        assert interaction.getMember() != null;
+        logDiscord(interaction.getGuild(), interaction.getMember(), interaction.getTextChannel(), "Command:" + slashCommand.getName() + "|SUCCESS");
+    }
+
+    public final void logDiscordButtonSuccess(@NotNull final Interaction interaction, final @NotNull ButtonEnum buttonEnum) {
+        assert interaction.getGuild()  != null;
+        assert interaction.getMember() != null;
+        logDiscord(interaction.getGuild(), interaction.getMember(), interaction.getTextChannel(), "Button:" + buttonEnum.getId() + "|SUCCESS");
+    }
+
+    public final void logDiscordMemberPermission(@NotNull final Interaction interaction, @NotNull final Permission @NotNull ... permissions) {
+        assert interaction.getGuild()  != null;
+        assert interaction.getMember() != null;
+
         final StringBuilder logDiscordBuilder = new StringBuilder();
         logDiscordBuilder.append("PermissionRefused:");
-        for(Permission permission : permissions) {
+        for (Permission permission : permissions) {
             logDiscordBuilder.append("'" + permission.getName() +  "'(value:" + permission.getRawValue() + "):");
         }
-        logDiscord(guild, member, textChannel, logDiscordBuilder.toString());
+        logDiscord(interaction.getGuild(), interaction.getMember(), interaction.getTextChannel(), logDiscordBuilder.toString());
+    }
+
+    public final void logDiscordBotPermission(@NotNull final Guild guild,@NotNull final InsufficientPermissionException insufficientPermissionException) {
+        final String insufficientPermissionString = "PermissionRefused:" + insufficientPermissionException.getPermission().getName()
+                + "'(value:" + insufficientPermissionException.getPermission().getRawValue();
+        logDiscord(guild, guild.getSelfMember(),  insufficientPermissionString);
+    }
+
+    public final void logDiscordHierarchyPermission(@NotNull final Guild guild, @NotNull final HierarchyException hierarchyException) {
+        logDiscord(guild, guild.getSelfMember(), "HierarchyPermission:" + hierarchyException.getMessage());
     }
 }

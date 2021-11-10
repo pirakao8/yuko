@@ -1,32 +1,32 @@
 package command.music;
 
 import bot.Bot;
-
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import command.CommandEnum;
+import net.dv8tion.jda.api.interactions.Interaction;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.jetbrains.annotations.NotNull;
-import bot.setting.EmojiList;
-import util.music.GuildMusicPlayer;
+import bot.EmojiEnum;
+
+import java.util.List;
 
 public class SkipCommand extends AbstractMusicCommand {
-    public SkipCommand(final GuildMusicPlayer guildMusicPlayer) {
-        super(guildMusicPlayer);
+    public SkipCommand() {
+        super(CommandEnum.SKIP);
     }
 
     @Override
-    public final void execute(@NotNull final SlashCommandEvent event, final Bot bot) {
-        super.execute(event, bot);
+    public final void execute(@NotNull final Interaction interaction, final @NotNull Bot bot, final List<OptionMapping> options) {
+        super.execute(interaction, bot, options);
 
-        assert event.getGuild() != null;
-
-        if (isPlayable(event, bot)) {
+        if (!isPlayable(interaction, bot)) {
             return;
         }
 
-        if (isMusicPlaying(event)) {
+        if (!isMusicPlaying(interaction)) {
             return;
         }
 
-        guildMusicPlayer.skipTrack(event.getGuild());
-        event.reply(EmojiList.SKIP.getTag() + " Music skipped").queue();
+        guildMusicPlayer.skipTrack(interaction.getGuild());
+        interaction.reply(EmojiEnum.SKIP.getTag() + " Music skipped").queue();
     }
 }

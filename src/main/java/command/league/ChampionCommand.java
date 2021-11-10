@@ -1,36 +1,41 @@
 package command.league;
 
 import bot.Bot;
-import bot.setting.EmojiList;
 import com.merakianalytics.orianna.Orianna;
 import com.merakianalytics.orianna.datapipeline.riotapi.exceptions.ForbiddenException;
-import com.merakianalytics.orianna.types.core.staticdata.Champion;
-import com.merakianalytics.orianna.types.core.staticdata.ChampionSpell;
-import com.merakianalytics.orianna.types.core.staticdata.ChampionStats;
-import com.merakianalytics.orianna.types.core.staticdata.Skin;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import com.merakianalytics.orianna.types.core.staticdata.*;
+import command.CommandEnum;
+import net.dv8tion.jda.api.interactions.Interaction;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.jetbrains.annotations.NotNull;
+import bot.EmojiEnum;
 import util.Logger;
 
 import java.util.List;
 
 public class ChampionCommand extends AbstractLeagueCommand {
+    public ChampionCommand() {
+        super(CommandEnum.CHAMP,
+                new OptionData(OptionType.STRING, "champion", "Champion's name", true)
+                );
+    }
+
     @Override
-    public final void execute(@NotNull final SlashCommandEvent event, @NotNull final Bot bot) {
-        super.execute(event);
+    public final void execute(@NotNull final Interaction interaction, final @NotNull Bot bot, final @NotNull List<OptionMapping> options) {
+        assert !options.isEmpty();
 
-        assert event.getOptions().get(0) != null;
-
-        if(!bot.getGuildSetting(event.getGuild()).isLeagueEnable()) {
-            event.reply("League commands are disabled").setEphemeral(true).queue();
+        if (!bot.getGuildSetting(interaction.getGuild()).isLeagueEnable()) {
+            interaction.reply("League commands are disabled").setEphemeral(true).queue();
             return;
         }
 
         try {
-            final Champion champion = Orianna.championNamed(event.getOptions().get(0).getAsString()).get();
+            final Champion champion = Orianna.championNamed(options.get(0).getAsString()).get();
 
             if (!champion.exists()) {
-                event.reply("Sorry, this champion doesn't exist, or you misspelled it").setEphemeral(true).queue();
+                interaction.reply("Sorry, this champion doesn't exist, or you misspelled it").setEphemeral(true).queue();
                 return;
             }
 
@@ -43,21 +48,24 @@ public class ChampionCommand extends AbstractLeagueCommand {
             embedBuilder.setThumbnail(champion.getImage().getURL());
 
             final ChampionStats championStats = champion.getStats();
-            embedBuilder.addField(EmojiList.HP.getTag(), (int) championStats.getHealth() + " +" + (int) championStats.getHealthPerLevel(), true);
-            embedBuilder.addField(EmojiList.ARMOR.getTag(), (int)championStats.getArmor() + " +" + (int) championStats.getArmorPerLevel(), true);
-            embedBuilder.addField(EmojiList.RM.getTag(), (int) championStats.getMagicResist() + " +" + (int) championStats.getMagicResistPerLevel(), true);
+            embedBuilder.addField(EmojiEnum.HP.getTag(), (int) championStats.getHealth() + " +" + (int) championStats.getHealthPerLevel(), true);
+            embedBuilder.addField(EmojiEnum.ARMOR.getTag(), (int)championStats.getArmor() + " +" + (int) championStats.getArmorPerLevel(), true);
+            embedBuilder.addField(EmojiEnum.RM.getTag(), (int) championStats.getMagicResist() + " +" + (int) championStats.getMagicResistPerLevel(), true);
 
-            embedBuilder.addField(EmojiList.AD.getTag(), (int) championStats.getAttackDamage() + " +" + (int) championStats.getAttackDamagePerLevel(), true);
-            embedBuilder.addField(EmojiList.MS.getTag(), String.valueOf((int) championStats.getMovespeed()), true);
-            embedBuilder.addField(EmojiList.ATTACK_RANGE.getTag(), String.valueOf((int) championStats.getAttackRange()), true);
+            embedBuilder.addField(EmojiEnum.AD.getTag(), (int) championStats.getAttackDamage() + " +" + (int) championStats.getAttackDamagePerLevel(), true);
+            embedBuilder.addField(EmojiEnum.MS.getTag(), String.valueOf((int) championStats.getMovespeed()), true);
+            embedBuilder.addField(EmojiEnum.ATTACK_RANGE.getTag(), String.valueOf((int) championStats.getAttackRange()), true);
 
             if (champion.getResource().equalsIgnoreCase("mana")) {
-                embedBuilder.addField(EmojiList.MANA.getTag(), (int) championStats.getMana() + " +" + (int) championStats.getManaPerLevel(), true);
+                embedBuilder.addField(EmojiEnum.MANA.getTag(), (int) championStats.getMana() + " +" + (int) championStats.getManaPerLevel(), true);
             } else {
-                embedBuilder.addField(EmojiList.MANA.getTag(), "N/A", true);
+                embedBuilder.addField(EmojiEnum.MANA.getTag(), "N/A", true);
             }
-            embedBuilder.addField(EmojiList.AS.getTag(), "+" + championStats.getAttackSpeedPerLevel()  + "%", true);
+            embedBuilder.addField(EmojiEnum.AS.getTag(), "+" + championStats.getAttackSpeedPerLevel()  + "%", true);
             embedBuilder.addBlankField(true);
+
+            final Passive passive = champion.getPassive();
+            embedBuilder.addField("Passive: " + passive.getName(), passive.description(), false);
 
             final List<ChampionSpell> championSpells = champion.getSpells();
             final char[] keySpells = "QWER".toCharArray();
@@ -68,11 +76,11 @@ public class ChampionCommand extends AbstractLeagueCommand {
             embedBuilder.addField("Ally tips", champion.getAllyTips().toString().replace("[", "").replace("]", ""), false);
             embedBuilder.addField("Enemy tips", champion.getEnemyTips().toString().replace("[", "").replace("]", ""), false);
 
-            event.replyEmbeds(embedBuilder.build()).setEphemeral(true).queue();
+            interaction.replyEmbeds(embedBuilder.build()).setEphemeral(true).queue();
             embedBuilder.clear();
         } catch (ForbiddenException e) {
             logger.log(Logger.Level.ERROR, "Riot API returned FORBIDDEN EXCEPTION, check key permission or api status page");
-            event.reply("Champion unavailable due to an error with Riot API").setEphemeral(true).queue();
+            interaction.reply("Champion unavailable due to an error with Riot API").setEphemeral(true).queue();
         }
     }
 }

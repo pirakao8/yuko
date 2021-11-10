@@ -1,6 +1,5 @@
 package util.music;
 
-import bot.setting.EmojiList;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
@@ -11,8 +10,9 @@ import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.Interaction;
 import org.jetbrains.annotations.NotNull;
+import bot.EmojiEnum;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,7 +33,7 @@ public class GuildMusicPlayer {
     }
 
     public static GuildMusicPlayer getInstance() {
-        if(guildMusicPlayer == null) {
+        if (guildMusicPlayer == null) {
             guildMusicPlayer = new GuildMusicPlayer();
         }
         return guildMusicPlayer;
@@ -54,17 +54,17 @@ public class GuildMusicPlayer {
         return musicManager;
     }
 
-    public final void loadAndPlay(final @NotNull SlashCommandEvent event, final String source) {
-        assert event.getGuild() != null;
+    public final void loadAndPlay(final @NotNull Interaction interaction, final String source) {
+        assert interaction.getGuild() != null;
 
-        final GuildMusicManager musicManager = getGuildAudioPlayer(event.getGuild());
+        final GuildMusicManager musicManager = getGuildAudioPlayer(interaction.getGuild());
 
-        musicManager.getScheduler().setTextChannel(event.getTextChannel());
+        musicManager.getScheduler().setTextChannel(interaction.getTextChannel());
 
         audioPlayerManager.loadItemOrdered(musicManager, source, new AudioLoadResultHandler() {
             @Override
             public void trackLoaded(@NotNull AudioTrack track) {
-                event.reply(EmojiList.MUSIC.getTag() + " Track " + track.getInfo().title + " added in the queue").queue();
+                interaction.reply(EmojiEnum.MUSIC.getTag() + " Track " + track.getInfo().title + " added in the queue").queue();
                 musicManager.getScheduler().queue(track);
             }
 
@@ -75,12 +75,12 @@ public class GuildMusicPlayer {
 
             @Override
             public void noMatches() {
-                event.reply("Nothing found by '" + source + "'").setEphemeral(true).queue();
+                interaction.reply("Nothing found by '" + source + "'").setEphemeral(true).queue();
             }
 
             @Override
             public void loadFailed(FriendlyException exception) {
-                event.reply("Can't load this type of track").setEphemeral(true).queue();
+                interaction.reply("Can't load this type of track").setEphemeral(true).queue();
             }
         });
     }
@@ -97,23 +97,21 @@ public class GuildMusicPlayer {
         getGuildAudioPlayer(guild).getScheduler().shuffleTracks();
     }
 
-    public final boolean pauseTrack(final Guild guild) {
+    public final boolean isPaused(final Guild guild) {
+        return getGuildAudioPlayer(guild).getAudioPlayer().isPaused();
+    }
+
+    public final void pauseTrack(final Guild guild) {
         final AudioPlayer audioPlayer = getGuildAudioPlayer(guild).getAudioPlayer();
-        if(audioPlayer.isPaused()) {
-            return false;
-        } else {
+        if (!audioPlayer.isPaused()) {
             audioPlayer.setPaused(true);
-            return true;
         }
     }
 
-    public final boolean resumeTrack(final Guild guild) {
+    public final void resumeTrack(final Guild guild) {
         final AudioPlayer audioPlayer = getGuildAudioPlayer(guild).getAudioPlayer();
-        if(audioPlayer.isPaused()) {
+        if (audioPlayer.isPaused()) {
             audioPlayer.setPaused(false);
-            return true;
-        } else {
-            return false;
         }
     }
 

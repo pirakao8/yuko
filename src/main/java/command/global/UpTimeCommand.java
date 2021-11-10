@@ -1,17 +1,22 @@
-package command.bot;
+package command.global;
 
 import bot.Bot;
+import command.CommandEnum;
 import command.AbstractSlashCommand;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.Interaction;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
+import java.util.List;
 
 public class UpTimeCommand extends AbstractSlashCommand {
-    @Override
-    public final void execute(@NotNull final SlashCommandEvent event, final Bot bot) {
-        super.execute(event, bot);
+    public UpTimeCommand() {
+        super(CommandEnum.UP_TIME);
+    }
 
+    @Override
+    public final void execute(@NotNull final Interaction interaction, final @NotNull Bot bot, final List<OptionMapping> options) {
         final Date startDate = bot.getReleaseDate();
         final Date endDate = new Date();
 
@@ -73,6 +78,6 @@ public class UpTimeCommand extends AbstractSlashCommand {
                 responseUptime.append(String.format("%d Second", elapsedSeconds));
             }
         }
-        event.reply(responseUptime.toString()).setEphemeral(true).queue();
+        interaction.reply(responseUptime.toString()).setEphemeral(true).queue();
     }
 }
