@@ -8,7 +8,7 @@ import util.Logger;
 import javax.security.auth.login.LoginException;
 
 public class Main {
-    private static final Logger logger = Logger.getLogger().setLogFile("/yuko.log");
+    private static final Logger logger = Logger.getLogger();
 
     public static void main(final String @NotNull [] argv) {
         String discordToken = "";
@@ -37,7 +37,6 @@ public class Main {
                     logger.log(Logger.Level.WARNING, "No Riot token specified, League of Legends commands are disabled");
                 }
                 try {
-                    bot.initCommands();
                     bot.initDiscord(discordToken);
                     new Thread(bot, "bot").start();
                 } catch (LoginException | InterruptedException e) {

@@ -1,37 +1,53 @@
 package command.music;
 
-import bot.Bot;
-import command.CommandEnum;
-import net.dv8tion.jda.api.interactions.Interaction;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import dataBase.EmojiEnum;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import bot.EmojiEnum;
-
-import java.util.List;
+import org.jetbrains.annotations.Nullable;
 
 public class ShuffleCommand extends AbstractMusicCommand {
-    public ShuffleCommand() {
-        super(CommandEnum.SHUFFLE);
+    @Contract(pure = true)
+    @Override
+    public final @NotNull String getName() {
+        return "shuffle";
+    }
+
+    @Contract(pure = true)
+    @Override
+    public final @NotNull String getDescription() {
+        return "Shuffle the current queue";
+    }
+
+    @Contract(pure = true)
+    @Override
+    public final OptionData @Nullable [] getOptions() {
+        return null;
     }
 
     @Override
-    public void execute(@NotNull final Interaction interaction, final @NotNull Bot bot, final List<OptionMapping> options) {
-        super.execute(interaction, bot, options);
+    public final boolean isEnable() {
+        return true;
+    }
 
-        if (!isPlayable(interaction, bot)) {
+    @Override
+    public final void execute(@NotNull final SlashCommandEvent event) {
+        super.execute(event);
+
+        if (!isExecutable(event)) {
             return;
         }
 
-        if (!isMusicPlaying(interaction)) {
+        final Guild guild = event.getGuild();
+
+        if (guildMusicPlayer.getTracks(guild).isEmpty()) {
+            event.reply("No tracks in queue").setEphemeral(true).queue();
             return;
         }
 
-        if (guildMusicPlayer.getTracks(interaction.getGuild()).isEmpty()) {
-            interaction.reply("No tracks in queue").setEphemeral(true).queue();
-            return;
-        }
-
-        guildMusicPlayer.shuffleTracks(interaction.getGuild());
-        interaction.reply(EmojiEnum.SHUFFLE.getTag() + " Queue shuffled").queue();
+        guildMusicPlayer.shuffleTracks(guild);
+        event.reply(EmojiEnum.SHUFFLE.getTag() + " Queue shuffled").queue();
     }
 }

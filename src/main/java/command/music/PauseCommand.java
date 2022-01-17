@@ -1,37 +1,53 @@
 package command.music;
 
-import bot.Bot;
-import command.CommandEnum;
-import net.dv8tion.jda.api.interactions.Interaction;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import dataBase.EmojiEnum;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import bot.EmojiEnum;
-
-import java.util.List;
+import org.jetbrains.annotations.Nullable;
 
 public class PauseCommand extends AbstractMusicCommand {
-    public PauseCommand() {
-        super(CommandEnum.PAUSE);
+    @Contract(pure = true)
+    @Override
+    public final @NotNull String getName() {
+        return "pause";
+    }
+
+    @Contract(pure = true)
+    @Override
+    public final @NotNull String getDescription() {
+        return "Pause/Resume the track";
+    }
+
+    @Contract(pure = true)
+    @Override
+    public final OptionData @Nullable [] getOptions() {
+        return null;
     }
 
     @Override
-    public final void execute(@NotNull final Interaction interaction, final @NotNull Bot bot, final List<OptionMapping> options) {
-        super.execute(interaction, bot, options);
+    public final boolean isEnable() {
+        return true;
+    }
 
-        if (!isPlayable(interaction, bot)) {
+    @Override
+    public final void execute(@NotNull final SlashCommandEvent event) {
+        super.execute(event);
+
+        if (!isExecutable(event)) {
             return;
         }
 
-        if (!isMusicPlaying(interaction)) {
-            return;
-        }
+        final Guild guild = event.getGuild();
 
-        if (!guildMusicPlayer.isPaused(interaction.getGuild())) {
-            guildMusicPlayer.pauseTrack(interaction.getGuild());
-            interaction.reply(EmojiEnum.PAUSE.getTag() + " Music paused").queue();
+        if (!guildMusicPlayer.isPaused(guild)) {
+            guildMusicPlayer.pauseTrack(guild, true);
+            event.reply(EmojiEnum.PAUSE.getTag() + "Music paused").queue();
         } else {
-            guildMusicPlayer.resumeTrack(interaction.getGuild());
-            interaction.reply(EmojiEnum.PLAY.getTag() + " Music resumed").queue();
+            guildMusicPlayer.pauseTrack(guild, false);
+            event.reply(EmojiEnum.PLAY.getTag() + " Music resumed").queue();
         }
     }
 }

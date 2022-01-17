@@ -1,6 +1,7 @@
 package command.league;
 
-import bot.Bot;
+import bot.GuildSettings;
+import dataBase.EmojiEnum;
 import com.merakianalytics.orianna.datapipeline.riotapi.exceptions.ForbiddenException;
 import com.merakianalytics.orianna.types.common.GameMode;
 import com.merakianalytics.orianna.types.common.Queue;
@@ -12,39 +13,57 @@ import com.merakianalytics.orianna.types.core.match.Participant;
 import com.merakianalytics.orianna.types.core.match.ParticipantStats;
 import com.merakianalytics.orianna.types.core.spectator.CurrentMatch;
 import com.merakianalytics.orianna.types.core.summoner.Summoner;
-import command.CommandEnum;
-import net.dv8tion.jda.api.interactions.Interaction;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import bot.EmojiEnum;
 import util.Logger;
 
 import java.text.NumberFormat;
 import java.util.Date;
-import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class SummonerCommand extends AbstractLeagueCommand {
-    public SummonerCommand() {
-        super(CommandEnum.SUMMONER,
+    @Contract(pure = true)
+    @Override
+    public final @NotNull String getName() {
+        return "summoner";
+    }
+
+    @Contract(pure = true)
+    @Override
+    public final @NotNull String getDescription() {
+        return "Get some info about a summoner";
+    }
+
+    @Contract(" -> new")
+    @Override
+    public final OptionData @NotNull [] getOptions() {
+        return new OptionData[] {
                 new OptionData(OptionType.STRING, "summoner", "Summoner's name", true)
-                );
+        };
     }
 
     @Override
-    public final void execute(@NotNull final Interaction interaction, final @NotNull Bot bot, final @NotNull List<OptionMapping> options) {
-        assert !options.isEmpty();
+    public final boolean isEnable() {
+        return true;
+    }
 
-        if (!bot.getGuildSetting(interaction.getGuild()).isLeagueEnable()) {
-            interaction.reply("League commands are disabled").setEphemeral(true).queue();
+    @Override
+    public final void execute(@NotNull final SlashCommandEvent event) {
+        if (!GuildSettings.getInstance(event.getGuild()).isLeagueEnable()) {
+            event.reply("League commands are disabled").setEphemeral(true).queue();
             return;
         }
 
+        super.execute(event);
+
         try {
-            final Summoner summoner = Summoner.named(options.get(0).getAsString()).get();
+            final String summonerName = event.getOptions().get(0).getAsString();
+            final Summoner summoner = Summoner.named(summonerName).get();
             if (!summoner.exists()) {
-                interaction.reply("Summoner not found").setEphemeral(true).queue();
+                event.reply("Summoner not found").setEphemeral(true).queue();
                 return;
             }
             embedBuilder.setTitle("" + summoner.getName());
@@ -72,7 +91,7 @@ public class SummonerCommand extends AbstractLeagueCommand {
                     for (Participant participant : lastMatch.getParticipants()) {
                         if (participant.getSummoner().equals(summoner)) {
                             final ParticipantStats stats = participant.getStats();
-                            infoLastMatchBuilder.append("**" + participant.getChampion().getName() + "** in "
+                            infoLastMatchBuilder.append("**" + participant.getChampion().getName() + "** en "
                                     + stats.getKills() + "/" + stats.getDeaths() + "/" + stats.getAssists());
 
                             if (lastMatch.getMode().equals(GameMode.CLASSIC)) {
@@ -110,11 +129,11 @@ public class SummonerCommand extends AbstractLeagueCommand {
             }
             embedBuilder.addField("Live game", infoCurrentMatchBuilder.toString(), true);
 
-            interaction.replyEmbeds(embedBuilder.build()).setEphemeral(true).queue();
+            event.replyEmbeds(embedBuilder.build()).queue(m -> m.deleteOriginal().submitAfter(5, TimeUnit.MINUTES));
             embedBuilder.clear();
         } catch (ForbiddenException e) {
             logger.log(Logger.Level.ERROR, "Riot API returned FORBIDDEN EXCEPTION about SUMMONER, check key permission or api status page");
-            interaction.reply("Unavailable (Riot API Error)").setEphemeral(true).queue();
+            event.reply("Unavailable (Riot API Error)").setEphemeral(true).queue();
         }
     }
 

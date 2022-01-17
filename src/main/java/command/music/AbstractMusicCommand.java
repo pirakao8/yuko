@@ -1,54 +1,73 @@
 package command.music;
 
-import bot.Bot;
-import command.CommandEnum;
-import command.AbstractSlashCommand;
-import net.dv8tion.jda.api.interactions.Interaction;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import bot.GuildSettings;
+import command.Command;
+import command.CommandCategoryEnum;
+import core.music.GuildMusicPlayer;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import util.Logger;
-import util.music.GuildMusicPlayer;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-
-public abstract class AbstractMusicCommand extends AbstractSlashCommand {
-    protected static Logger logger = Logger.getLogger();
+public abstract class AbstractMusicCommand implements Command {
+    protected final String msgMusicNotPlaying    = "Music not playing";
+    protected final String msgMemberNotConnected = "You have to be in an audio channel";
+    protected final String msgMusicDisabled      = "Music commands are disabled";
 
     protected GuildMusicPlayer guildMusicPlayer;
 
-    protected AbstractMusicCommand(@NotNull CommandEnum commandEnum, @NotNull OptionData @NotNull ... optionData) {
-        super(commandEnum, optionData);
+    @Override
+    public final CommandCategoryEnum getCategory() {
+        return CommandCategoryEnum.MUSIC;
+    }
+
+    @Contract(pure = true)
+    @Override
+    public final @Nullable Permission getPermission() {
+        return null;
     }
 
     @Override
-    public void execute(@NotNull Interaction interaction, @NotNull Bot bot, List<OptionMapping> options) {
-            guildMusicPlayer = bot.getGuildMusicPlayer();
+    public void execute(@NotNull final SlashCommandEvent event) {
+        guildMusicPlayer = GuildMusicPlayer.getInstance();
     }
 
-    protected final boolean isPlayable(@NotNull final Interaction interaction, @NotNull final Bot bot) {
-        assert interaction.getMember() != null;
-        assert interaction.getMember().getVoiceState() != null;
+    protected final boolean isMemberConnected(@NotNull final Member member) {
+        assert member.getVoiceState() != null;
 
-        if (!bot.getGuildSetting(interaction.getGuild()).isMusicEnable()) {
-            interaction.reply("Music commands are disabled").setEphemeral(true).queue();
-            return false;
-        }
-
-        if (!interaction.getMember().getVoiceState().inVoiceChannel()) {
-            interaction.reply("You have to be in an audio channel").setEphemeral(true).queue();
-            return false;
-        }
-        return true;
+        return member.getVoiceState().inVoiceChannel();
     }
 
-    protected final boolean isMusicPlaying(@NotNull final Interaction interaction) {
-        assert interaction.getGuild() != null;
+    protected final boolean isBotPlayingMusic(@NotNull final Guild guild) {
+        return guild.getAudioManager().isConnected();
+    }
 
-        if (!interaction.getGuild().getAudioManager().isConnected()) {
-            interaction.reply("Music not playing").setEphemeral(true).queue();
+    protected final boolean isMusicEnable(@NotNull final Guild guild) {
+        return GuildSettings.getInstance(guild).isMusicEnable();
+    }
+
+    protected final boolean isExecutable(@NotNull final SlashCommandEvent event) {
+        assert event.getMember() != null;
+        assert event.getGuild()  != null;
+
+        if (!isMusicEnable(event.getGuild())) {
+            event.reply(msgMusicDisabled).setEphemeral(true).queue();
             return false;
         }
+
+        if (!isMemberConnected(event.getMember())) {
+            event.reply(msgMemberNotConnected).setEphemeral(true).queue();
+            return false;
+        }
+
+        if (!isBotPlayingMusic(event.getGuild())) {
+            event.reply(msgMusicNotPlaying).setEphemeral(true).queue();
+            return false;
+        }
+
         return true;
     }
 }

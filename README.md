@@ -9,9 +9,33 @@ Yuko has been developed first for our private guild, but we decided to push our 
 ## Features and Slash commands
 Yuko got many features, not only Slash commands. You can find here what Yuko can do.
 
+### Admin
+* `/rules <rule>`: Add or read rules of this guild,
+* `/deleterules`: Delete all rules of this guild,
+* `/settings`: Enable/Disable features with interactive buttons,
+
+With `/settings`, you can enable/disable some features if you are an admin, like `Welcomer` or `Yuko's jail`.  
+`Welcomer` creates a text channel and a role for new joiner in the guild. It displays rules in this new channel and new member must agree those rules in order to see your guild. To enable this feature, you have to add rule(s) first for your guild.
+
+### Game
+* `/flipacoin`: Flip a coin. Basic. Simple,
+* `/w2p`: Ask everyone online if they want to play with you.
+
+![FlipACoin](images/flipacoin.png)
+
+You can enable/disable `/w2p` command with the commands `/settings`.
+
+### Global
+* `/help`: Display all the commands available,
+* `/info`: Get some info about Yuko's life,
+* `/topic`: Get the topic of the current channel,
+* `/uptime`: Get the time since I'm alive,
+
+![Settings](images/settings.png)
+
 ### League of Legends
 
-* `/champion <Champion's name>`: Get tips your favorite league champion,
+* `/champion <Champion's name>`: Get tips on your favorite league champion,
 * `/build <Champion's name>`: Get the recommended build for a league champion,
 * `/summoner <Summoner's name>`: Get some info about a summoner,
 * `/patch`: Get the last patch note.
@@ -25,7 +49,6 @@ You can enable/disable League of Legends commands with the commands `/settings`.
 ### Music
 * `/play <YouTube link or title of the YouTube audio>`: Come to your channel and play a YouTube audio,
 * `/volume <Volume value`: Set up the volume, must be a value between 1 and 100,
-* `/player`: Get a player, like a radio,
 * `/pause`: Pause/Resume the audio,
 * `/skip`: Skip the current audio to the next,
 * `/stop`: Stop the audio and clear the queue,
@@ -33,35 +56,7 @@ You can enable/disable League of Legends commands with the commands `/settings`.
 * `/clear`: Clear the queue,
 * `/shuffle`: Shuffle the queue.
 
-You can enable/disable Music commands with the commands `/settings`.
-
-### Games
-* `/flipacoin`: Flip a coin. Basic. Simple,
-* `/w2p`: Ask everyone online if they want to play with you.
-
-![FlipACoin](images/flipacoin.png)
-
-
-You can enable/disable `/w2p` command with the commands `/settings`.
-
-### Administrative
-* `/help`: Display all the commands available,
-* `/info`: Get some info about Yuko's life,
-* `/topic`: Get the topic of the current channel,
-* `/uptime`: Get the time since I'm alive,
-* `/ping`: Get my response time,
-* `/rules <rule>`: Add or read rules of this guild,
-* `/deleterules`: Delete all rules of this guild,
-* `/settings`: Enable/Disable features with interactive buttons,
-* `/to <Member> <Time in minutes>`: Time out someone (5 minutes if no time specified).
-
-You can enable/disable `/to` command with the commands `/settings`.
-
-With `/settings`, you can enable/disable some features if you are an admin, like `Welcomer` or `Yuko's jail`.  
-`Welcomer` creates a text channel and a role for new joiner in the guild. It displays rules in this new channel and new member must agree those rules in order to see your guild. To enable this feature, you have to add rule(s) first for your guild.  
-When you enable `Yuko's jail` to get the `/to` command, a role is created. In this role, you can do nothing, you are kicked temporarily. This role is added to all channels/categories when you enable it. Of course, only members who can manage roles can use this command.
-
-![Settings](images/settings.png)
+You can enable/disable music commands with the commands `/settings`.
 
 ## How it works
 Yuko is programed in Java 11, but in order to run it on small devices like Raspberry Pi 3+/4, it's compatible with Java 8. We're currently using 3 externals API:

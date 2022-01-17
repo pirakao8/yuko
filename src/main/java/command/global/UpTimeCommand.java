@@ -1,23 +1,56 @@
 package command.global;
 
 import bot.Bot;
-import command.CommandEnum;
-import command.AbstractSlashCommand;
-import net.dv8tion.jda.api.interactions.Interaction;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import command.Command;
+import command.CommandCategoryEnum;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Date;
-import java.util.List;
+import java.util.concurrent.TimeUnit;
 
-public class UpTimeCommand extends AbstractSlashCommand {
-    public UpTimeCommand() {
-        super(CommandEnum.UP_TIME);
+public class UpTimeCommand implements Command {
+    @Contract(pure = true)
+    @Override
+    public final @NotNull String getName() {
+        return "uptime";
+    }
+
+    @Contract(pure = true)
+    @Override
+    public final @NotNull String getDescription() {
+        return "Get the time since I'm up";
     }
 
     @Override
-    public final void execute(@NotNull final Interaction interaction, final @NotNull Bot bot, final List<OptionMapping> options) {
-        final Date startDate = bot.getReleaseDate();
+    public final CommandCategoryEnum getCategory() {
+        return CommandCategoryEnum.GLOBAL;
+    }
+
+    @Contract(pure = true)
+    @Override
+    public final OptionData @Nullable [] getOptions() {
+        return null;
+    }
+
+    @Contract(pure = true)
+    @Override
+    public final @Nullable Permission getPermission() {
+        return null;
+    }
+
+    @Override
+    public final boolean isEnable() {
+        return true;
+    }
+
+    @Override
+    public final void execute(@NotNull final SlashCommandEvent event) {
+        final Date startDate = Bot.getReleaseDate();
         final Date endDate = new Date();
 
         long different = endDate.getTime() - startDate.getTime();
@@ -78,6 +111,6 @@ public class UpTimeCommand extends AbstractSlashCommand {
                 responseUptime.append(String.format("%d Second", elapsedSeconds));
             }
         }
-        interaction.reply(responseUptime.toString()).setEphemeral(true).queue();
+        event.reply(responseUptime.toString()).queue(m -> m.deleteOriginal().submitAfter(5, TimeUnit.MINUTES));
     }
 }

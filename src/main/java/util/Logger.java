@@ -1,11 +1,9 @@
 package util;
 
-import button.ButtonEnum;
-import command.AbstractSlashCommand;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.GuildChannel;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.exceptions.HierarchyException;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.interactions.Interaction;
@@ -87,57 +85,40 @@ public class Logger {
         log(Level.SYSTEM, content);
     }
 
-    private void logDiscord(@NotNull final Guild guild, @NotNull final Member member, @NotNull final TextChannel textChannel, final String content) {
+    public final void logDiscord(@NotNull final Guild guild, @NotNull final User user, @NotNull final GuildChannel guildChannel, final String content) {
         final String logDiscordString = "Guild:'" + guild.getName() + "'(id:" + guild.getId() + ")|" +
-                "Member:'" + member.getEffectiveName() + "'(id:" + member.getId() + ")|" +
-                "Channel:'" + textChannel.getName() + "'(id:" + textChannel.getId() + ")|" +
+                "Member:'" + user.getName() + "'(id:" + user.getId() + ")|" +
+                "Channel:'" + guildChannel.getName() + "'(id:" + guildChannel.getId() + ")|" +
                 content;
         log(Level.DISCORD, logDiscordString);
     }
 
-    private void logDiscord(@NotNull final Guild guild, @NotNull final Member member, final String content) {
+    public final void logDiscord(@NotNull final Guild guild, @NotNull final User user, final String content) {
         final String logDiscordString = "Guild:'" + guild.getName() + "'(id:" + guild.getId() + ")|" +
-                "Member:'" + member.getEffectiveName() + "'(id:" + member.getId() + ")|" +
+                "Member:'" + user.getName() + "'(id:" + user.getId() + ")|" +
                 content;
         log(Level.DISCORD, logDiscordString);
     }
 
-    public final void logDiscord(@NotNull final Guild guild, final String content) {
-        final String logDiscordString = "Guild:'" + guild.getName() + "'(id:" + guild.getId() + ")|" + content;
+    public final void logDiscord(@NotNull final User user, final String content) {
+        final String logDiscordString = "User:'" + user.getName() + "'(id:" + user.getId() + ")|" + content;
         log(Level.DISCORD, logDiscordString);
     }
 
-    public final void logDiscordCommandSuccess(@NotNull final Interaction interaction, final @NotNull AbstractSlashCommand slashCommand) {
+    public final void logDiscordMemberPermission(@NotNull final Interaction interaction, @NotNull final Permission permission) {
         assert interaction.getGuild()  != null;
-        assert interaction.getMember() != null;
-        logDiscord(interaction.getGuild(), interaction.getMember(), interaction.getTextChannel(), "Command:" + slashCommand.getName() + "|SUCCESS");
+
+        logDiscord(interaction.getGuild(), interaction.getUser(), interaction.getTextChannel(), "PermissionRefused:'"
+                + permission.getName() +  "'(value:" + permission.getRawValue() + ")");
     }
 
-    public final void logDiscordButtonSuccess(@NotNull final Interaction interaction, final @NotNull ButtonEnum buttonEnum) {
-        assert interaction.getGuild()  != null;
-        assert interaction.getMember() != null;
-        logDiscord(interaction.getGuild(), interaction.getMember(), interaction.getTextChannel(), "Button:" + buttonEnum.getId() + "|SUCCESS");
-    }
-
-    public final void logDiscordMemberPermission(@NotNull final Interaction interaction, @NotNull final Permission @NotNull ... permissions) {
-        assert interaction.getGuild()  != null;
-        assert interaction.getMember() != null;
-
-        final StringBuilder logDiscordBuilder = new StringBuilder();
-        logDiscordBuilder.append("PermissionRefused:");
-        for (Permission permission : permissions) {
-            logDiscordBuilder.append("'" + permission.getName() +  "'(value:" + permission.getRawValue() + "):");
-        }
-        logDiscord(interaction.getGuild(), interaction.getMember(), interaction.getTextChannel(), logDiscordBuilder.toString());
-    }
-
-    public final void logDiscordBotPermission(@NotNull final Guild guild,@NotNull final InsufficientPermissionException insufficientPermissionException) {
+    public final void logDiscordBotPermission(@NotNull final Guild guild, @NotNull final InsufficientPermissionException insufficientPermissionException) {
         final String insufficientPermissionString = "PermissionRefused:" + insufficientPermissionException.getPermission().getName()
                 + "'(value:" + insufficientPermissionException.getPermission().getRawValue();
-        logDiscord(guild, guild.getSelfMember(),  insufficientPermissionString);
+        logDiscord(guild, guild.getSelfMember().getUser(), insufficientPermissionString);
     }
 
     public final void logDiscordHierarchyPermission(@NotNull final Guild guild, @NotNull final HierarchyException hierarchyException) {
-        logDiscord(guild, guild.getSelfMember(), "HierarchyPermission:" + hierarchyException.getMessage());
+        logDiscord(guild, guild.getSelfMember().getUser(), "HierarchyPermission:" + hierarchyException.getMessage());
     }
 }

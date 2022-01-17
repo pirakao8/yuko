@@ -1,41 +1,64 @@
 package command.game;
 
-import bot.Bot;
 import bot.GuildSettings;
-import button.ButtonEnum;
-import command.CommandEnum;
-import command.AbstractSlashCommand;
+import button.game.HeadsButton;
+import button.game.TailsButton;
+import command.Command;
+import command.CommandCategoryEnum;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Emoji;
-import net.dv8tion.jda.api.interactions.Interaction;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import bot.EmojiEnum;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
+public class FlipCoinCommand implements Command {
+    @Contract(pure = true)
+    @Override
+    public final @NotNull String getName() {
+        return "flipacoin";
+    }
 
-public class FlipCoinCommand extends AbstractSlashCommand {
-    public FlipCoinCommand() {
-        super(CommandEnum.FLIP_A_COIN);
+    @Contract(pure = true)
+    @Override
+    public final @NotNull String getDescription() {
+        return "Flip a coin. Basic. Simple";
     }
 
     @Override
-    public final void execute(@NotNull final Interaction interaction, final Bot bot, final List<OptionMapping> options) {
+    public final CommandCategoryEnum getCategory() {
+        return CommandCategoryEnum.GAMES;
+    }
+
+    @Contract(pure = true)
+    @Override
+    public final OptionData @Nullable [] getOptions() {
+        return null;
+    }
+
+    @Contract(pure = true)
+    @Override
+    public final @Nullable Permission getPermission() {
+        return null;
+    }
+
+    @Override
+    public final boolean isEnable() {
+        return true;
+    }
+
+    @Override
+    public final void execute(@NotNull final SlashCommandEvent event) {
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setColor(GuildSettings.DEFAULT_COLOR);
         embedBuilder.setTitle("Heads or tails?");
-        embedBuilder.setDescription("Your choice " + EmojiEnum.ARROW_DOWN.getTag());
 
-        interaction.replyEmbeds(embedBuilder.build()).addActionRow(
-                        Button.primary(ButtonEnum.BT_HEADS.getId(), ButtonEnum.BT_HEADS.getLabel()).withEmoji(Emoji.fromMarkdown(EmojiEnum.SWORD.getTag())),
-                        Button.primary(ButtonEnum.BT_TAILS.getId(), ButtonEnum.BT_TAILS.getLabel()).withEmoji(Emoji.fromMarkdown(EmojiEnum.SHIELD.getTag())))
+        event.replyEmbeds(embedBuilder.build()).addActionRow(
+                        new HeadsButton().getComponent(),
+                        new TailsButton().getComponent())
                 .queue();
 
         embedBuilder.clear();
-    }
-
-    public final boolean getResult() {
-        return (int) (Math.random() * 2) == 0;
     }
 }

@@ -1,41 +1,56 @@
 package command.music;
 
-import bot.Bot;
-import command.CommandEnum;
-import net.dv8tion.jda.api.interactions.Interaction;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import dataBase.EmojiEnum;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import bot.EmojiEnum;
-
-import java.util.List;
 
 public class VolumeCommand extends AbstractMusicCommand {
-    public VolumeCommand() {
-        super(CommandEnum.VOLUME,
-                new OptionData(OptionType.INTEGER, "volume", "Volume between 0 and 100", true)
-                );
+    @Contract(pure = true)
+    @Override
+    public final @NotNull String getName() {
+        return "volume";
+    }
+
+    @Contract(pure = true)
+    @Override
+    public final @NotNull String getDescription() {
+        return "Set up the volume";
     }
 
     @Override
-    public void execute(@NotNull final Interaction interaction, final @NotNull Bot bot, final @NotNull List<OptionMapping> options) {
-        super.execute(interaction, bot, options);
+    public OptionData[] getOptions() {
+        return new OptionData[] {
+                new OptionData(OptionType.INTEGER, "value", "Value between 0 and 100", true)
+        };
+    }
 
-        assert !options.isEmpty();
+    @Override
+    public final boolean isEnable() {
+        return true;
+    }
 
-        if (!isPlayable(interaction, bot)) {
-            return;
+    @Override
+    public final void execute(@NotNull final SlashCommandEvent event) {
+        super.execute(event);
+
+        final Guild guild = event.getGuild();
+
+        try {
+            final int volume  = (int) event.getOptions().get(0).getAsLong();
+
+            if (volume < 0 || volume > 100) {
+                throw new IllegalStateException();
+            }
+
+            guildMusicPlayer.setVolume(guild, volume);
+            event.reply(EmojiEnum.VOLUME.getTag() + " Volume is now at **" + guildMusicPlayer.getVolume(guild) + "**").queue();
+
+        } catch (IllegalStateException | NumberFormatException e) {
+            event.reply("Volume must be a value between 0 and 100").setEphemeral(true).queue();
         }
-
-        final int volume = (int) options.get(0).getAsLong();
-
-        if (volume < 0 || volume > 100) {
-            interaction.reply("Volume must be a value between 0 and 100").setEphemeral(true).queue();
-            return;
-        }
-
-        guildMusicPlayer.setVolume(interaction.getGuild(), volume);
-        interaction.reply(EmojiEnum.VOLUME.getTag() + " Volume is now at " + guildMusicPlayer.getVolume(interaction.getGuild())).queue();
     }
 }

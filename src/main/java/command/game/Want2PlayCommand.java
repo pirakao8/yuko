@@ -1,56 +1,96 @@
 package command.game;
 
-import bot.Bot;
 import bot.GuildSettings;
-import command.CommandEnum;
-import command.AbstractSlashCommand;
-import net.dv8tion.jda.api.EmbedBuilder;
+import command.Command;
+import command.CommandCategoryEnum;
+import dataBase.EmojiEnum;
 import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.interactions.Interaction;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.List;
 
-public class Want2PlayCommand extends AbstractSlashCommand {
+public class Want2PlayCommand implements Command {
     private final String[] tabMsgMention = {
             "Let's play my friend!",
             "Wanna play?",
             "We need you on the field!",
     };
 
-    public Want2PlayCommand() {
-        super(CommandEnum.W2P);
+    @Contract(pure = true)
+    @Override
+    public final @NotNull String getName() {
+        return "w2p";
+    }
+
+    @Contract(pure = true)
+    @Override
+    public final @NotNull String getDescription() {
+        return "I ask to everybody connected if they want to play with you";
     }
 
     @Override
-    public final void execute(@NotNull final Interaction interaction, final @NotNull Bot bot, final List<OptionMapping> options) {
-        if (!bot.getGuildSetting(interaction.getGuild()).isW2PEnable()) {
-            interaction.reply("W2P is disabled").setEphemeral(true).queue();
+    public final CommandCategoryEnum getCategory() {
+        return CommandCategoryEnum.GAMES;
+    }
+
+    @Contract(pure = true)
+    @Override
+    public final OptionData @Nullable [] getOptions() {
+        return null;
+    }
+
+    @Contract(pure = true)
+    @Override
+    public final @Nullable Permission getPermission() {
+        return null;
+    }
+
+    @Override
+    public final boolean isEnable() {
+        return true;
+    }
+
+    @Override
+    public final void execute(@NotNull final SlashCommandEvent event) {
+        if (!GuildSettings.getInstance(event.getGuild()).isW2PEnable()) {
+            event.reply("W2P is disabled").setEphemeral(true).queue();
             return;
         }
 
         final ArrayList<Member> memberList = new ArrayList<>();
-        for (Member member : interaction.getTextChannel().getMembers()) {
+        for (Member member : event.getTextChannel().getMembers()) {
             if (member.getOnlineStatus() == OnlineStatus.ONLINE && !member.getUser().isBot()) {
-               memberList.add(member);
+                memberList.add(member);
+
             }
         }
-        memberList.remove(interaction.getMember());
+        memberList.remove(event.getMember());
 
         if (memberList.isEmpty()) {
-            interaction.reply("Sorry, nobody available to play with you").setEphemeral(true).queue();
+            event.reply("Sorry, nobody available to play with you").setEphemeral(true).queue();
             return;
         }
 
-        final EmbedBuilder embedBuilder = new EmbedBuilder();
-        embedBuilder.setColor(GuildSettings.DEFAULT_COLOR);
-        embedBuilder.setTitle("W2P?");
-        embedBuilder.setDescription(tabMsgMention[(int) (Math.random() * tabMsgMention.length)]);
+        assert event.getMember() != null;
 
-        interaction.replyEmbeds(embedBuilder.build()).mention(memberList).queue();
-        embedBuilder.clear();
+        final StringBuilder w2pBuilder = new StringBuilder();
+        w2pBuilder.append("Want2Play? from " + event.getMember().getEffectiveName() + "\n\n");
+
+        for (Member member : memberList) {
+            w2pBuilder.append("<@" + member.getId() + "> " + tabMsgMention[(int) (Math.random() * tabMsgMention.length)] + "\n");
+        }
+
+        event.reply("w2p sent").setEphemeral(true).queue();
+        event.getTextChannel().sendMessage(w2pBuilder.toString()).queue(m -> {
+            m.addReaction(EmojiEnum.THUMBS_UP.getTag()).queue();
+            m.addReaction(EmojiEnum.MAYBE.getTag()).queue();
+            m.addReaction(EmojiEnum.THUMBS_DOWN.getTag()).queue();
+        });
     }
 }
