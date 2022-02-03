@@ -1,11 +1,7 @@
+
 plugins {
     id 'java'
-    id 'application'
     id 'com.github.johnrengelman.shadow' version '4.0.0'
-}
-
-application {
-    mainClassName = 'main.Main'
 }
 
 sourceCompatibility = 1.8
@@ -40,12 +36,4 @@ jar {
     manifest {
         attributes "Main-Class": "main.Main"
     }
-
-    from {
-        configurations
-                .compile
-                .findAll { !it.name.endsWith('pom') }
-                .collect { it.isDirectory() ? it : zipTree(it) }
-    }
 }
-
