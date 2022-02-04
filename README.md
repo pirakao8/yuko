@@ -14,8 +14,8 @@ Yuko got many features, not only Slash commands. You can find here what Yuko can
 * `/deleterules`: Delete all rules of this guild,
 * `/settings`: Enable/Disable features with interactive buttons,
 
-With `/settings`, you can enable/disable some features if you are an admin, like `Welcomer` or `Yuko's jail`.  
-`Welcomer` creates a text channel and a role for new joiner in the guild. It displays rules in this new channel and new member must agree those rules in order to see your guild. To enable this feature, you have to add rule(s) first for your guild.
+With `/settings`, you can enable/disable some features if you are an admin, like `Welcomer`.  
+`Welcomer` creates a text channel and a role for new joiner in the guild. It displays rules in this new channel and new member must agree those rules in order to enter to your guild. To enable this feature, you have to add rule(s) first to your guild with `/rules`.
 
 ### Game
 * `/flipacoin`: Flip a coin. Basic. Simple,
@@ -75,25 +75,28 @@ If you want to build your own Yuko and use our code, you need to follow several 
 
 ### Discord API key
 Create a new application on Discord Developer Portal, go to **Bot** section, select **Presence Intent** and **Server Members Intent** and copy your secret token.  
-https://discord.com/developers/applications
+Discord dev portal: https://discord.com/developers/applications
 
 ![Permissions](images/DiscordKey.png)
 
 ### Riot Games API key
 If you want to use our League Of Legends features, you need to get a Riot Games API key by creating an app and register your product (whereas they give you a 24h test key).  
-https://developer.riotgames.com
+Riot dev portal: https://developer.riotgames.com
 
 ### Build
-Build your code with Gradle and Java 11. If you want to build a `.jar`, we advise you to use Gradle Shadow. We're currently using it to build our `.jar`, all the libraries in the `gradle.build` file are already set. Just build the `.jar` with `./gradlew shadowJar`  
-https://github.com/johnrengelman/shadow
+Build your code with Gradle and Java 11. If you want to build a `.jar`, we advise you to use Gradle Shadow. We're currently using it to build our `.jar`, all the libraries in the `gradle.build` file are already set. Just build the `.jar` with the command:
+
+    $ gradle shadowJar 
+Shadow: https://github.com/johnrengelman/shadow
 
 ### Running
 There is 2 arguments specific to Yuko in our code:
 * `--discord-token=DISCORD_API_KEY`: specify your Discord API key (secret token).
 * `--riot-token=RIOT_API_KEY`: specify your Riot Games API key.
 
-To run your `.jar`:  
-`java -jar path/to/.jar --discord-token=DISCORD_API_KEY --riot-token=RIOT_API_KEY -Dfile.encoding=utf-8 -encoding utf8`  
+To run your `.jar`:
+
+    java -jar path/to/.jar --discord-token=DISCORD_API_KEY --riot-token=RIOT_API_KEY -Dfile.encoding=utf-8 -encoding utf8
 
 
 We added `-Dfile.encoding=utf-8 -encoding utf8` because we had problems with accents encoding.  
@@ -121,6 +124,26 @@ https://discord.com/api/oauth2/authorize?client_id=XXX&permissions=288410640&sco
 ![Permissions](images/permissions.png)
 
 And that's all, just run your build, and you will see your bot appears in your guild!
+
+### Docker
+To simplify the deployment of Yuko and for our tests, we created an image of a docker which build everything for you available on Docker Hub.
+
+https://hub.docker.com/r/pirakao8/yuko-bot
+
+Download it with the command:
+
+    $ docker pull pirakao8/yuko-bot
+
+If you want to create your own image of your bot, you can find our `Dockerfile` in the repository `docker`.
+To build your image, run the command:
+
+    $ docker build .
+
+Run your or our image with your Discord API key and your Riot Games API key:
+
+    $ docker run --env discord_token=DISCORD_API_KEY --env riot_token=RIOT_API_KEY IMAGE_NAME_OR_pirakao8/yuko-bot
+
+Your Yuko should be alive.
 
 ## Contributors
 * Dev: **Chronoxios#5235**, **pirakao8#1272**
